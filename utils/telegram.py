@@ -5,8 +5,8 @@ from utils.logging import log
 
 
 def delete_message(
-    bot: TeleBot,
-    msg: Message,
+        bot: TeleBot,
+        msg: Message,
 ) -> None:
     try:
         bot.delete_message(

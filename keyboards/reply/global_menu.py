@@ -1,6 +1,5 @@
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 
-
 BUTTON_HELP: str = "Помощь"
 BUTTON_MAIN_MENU: str = "Главное меню"
 

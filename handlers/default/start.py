@@ -1,10 +1,10 @@
 from telebot.types import Message
 
-from handlers.default.help import what_can_i_do
 from keyboards.inline.main_menu import create_main_menu
 from keyboards.reply.global_menu import create_global_menu
 from loader import bot
 from utils.telegram import delete_message
+from .help import what_can_i_do
 
 
 @bot.message_handler(commands=["start"])

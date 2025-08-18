@@ -1,6 +1,6 @@
 from telebot.types import BotCommand
 
-from config.config import DEFAULT_COMMANDS
+from config import DEFAULT_COMMANDS
 
 
 def set_default_commands(bot):

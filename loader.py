@@ -1,7 +1,7 @@
 from telebot import TeleBot
 from telebot.storage import StateMemoryStorage
 
-from config import config
+import config
 
 storage = StateMemoryStorage()
 bot = TeleBot(

@@ -1,6 +1,7 @@
 from telebot.types import Message
 
 from handlers.default.help import what_can_i_do
+from keyboards.inline.main_menu import create_main_menu
 from keyboards.reply.global_menu import create_global_menu
 from loader import bot
 from utils.telegram import delete_message
@@ -16,6 +17,12 @@ def bot_start(msg: Message) -> None:
         chat_id=msg.chat.id,
         text=text,
         reply_markup=create_global_menu(),
+    )
+
+    bot.send_message(
+        chat_id=msg.chat.id,
+        text="Нажми, чтобы продолжить 👇",
+        reply_markup=create_main_menu(),
     )
 
 

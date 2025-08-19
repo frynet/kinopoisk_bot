@@ -1,0 +1,2 @@
+class KinopoiskApiError(RuntimeError):
+    pass

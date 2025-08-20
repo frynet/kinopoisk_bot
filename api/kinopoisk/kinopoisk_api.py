@@ -9,6 +9,8 @@ import config
 from errors.api.kinopoisk import KinopoiskApiError
 from utils.errors import log_request_error
 from utils.logging import log
+from utils.models import get_required_fields
+from .dto.movie import MovieDto
 from .dto.response import ResponseMovieSearch
 from .dto.slug import KinopoiskSlug
 
@@ -88,6 +90,32 @@ class KinopoiskApi:
             "page": page,
             "limit": limit,
         }
+
+        data = self._request("GET", url, params=params)
+
+        return ResponseMovieSearch(**data)
+
+    def search_movies(
+            self,
+            page: int = 1,
+            limit: int = 10,
+            genres: List[KinopoiskSlug] | None = None,
+    ) -> ResponseMovieSearch:
+        url = f"{self._base_url}/v1.4/movie"
+
+        params: dict[str, Any] = {
+            "page": page,
+            "limit": limit,
+            "selectFields": get_required_fields(MovieDto),
+            "sortField": ["rating.kp", "rating.imdb"],
+            "sortType": ["-1", "-1"],
+        }
+
+        if genres:
+            params["genres.name"] = [
+                f"+{genre.name}"
+                for genre in genres
+            ]
 
         data = self._request("GET", url, params=params)
 

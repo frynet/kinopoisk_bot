@@ -23,7 +23,7 @@ class KinopoiskApi:
 
     def __init__(
             self,
-            token: str,
+            api_key: str,
             base_url: str,
             request_timeout: int = 10,
             genres_ttl: timedelta = timedelta(days=1),
@@ -35,7 +35,7 @@ class KinopoiskApi:
         self._session = Session()
         self._session.headers.update(
             {
-                "X-API-KEY": token,
+                "X-API-KEY": api_key,
                 "accept": "application/json",
             }
         )
@@ -145,6 +145,6 @@ class KinopoiskApi:
 
 
 kinopoisk_api = KinopoiskApi(
-    token=config.KINOPOISK_API_KEY,
+    api_key=config.KINOPOISK_API_KEY,
     base_url=BASE_URL,
 )

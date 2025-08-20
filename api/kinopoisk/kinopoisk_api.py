@@ -9,11 +9,12 @@ import config
 from errors.api.kinopoisk import KinopoiskApiError
 from utils.errors import log_request_error
 from utils.logging import log
+from .dto.response import ResponseMovieSearch
 from .dto.slug import KinopoiskSlug
 
 __all__ = ["kinopoisk_api"]
 
-BASE_URL = "https://api.kinopoisk.dev/v1"
+BASE_URL = "https://api.kinopoisk.dev"
 
 
 class KinopoiskApi:
@@ -45,7 +46,7 @@ class KinopoiskApi:
         if self._is_genres_cache_valid():
             return self._genres_cache or []
 
-        url = f"{self._base_url}/movie/possible-values-by-field"
+        url = f"{self._base_url}/v1/movie/possible-values-by-field"
         params = {"field": "genres.name"}
         data = self._request("GET", url, params)
 
@@ -73,6 +74,24 @@ class KinopoiskApi:
         self._genres_cached_at = self._now()
 
         return genres
+
+    def search_movies_by_name(
+            self,
+            search_name: str,
+            page: int = 1,
+            limit: int = 10,
+    ) -> ResponseMovieSearch:
+
+        url = f"{self._base_url}/v1.4/movie/search"
+        params = {
+            "query": search_name.strip(),
+            "page": page,
+            "limit": limit,
+        }
+
+        data = self._request("GET", url, params=params)
+
+        return ResponseMovieSearch(**data)
 
     @log_request_error(KinopoiskApiError)
     def _request(

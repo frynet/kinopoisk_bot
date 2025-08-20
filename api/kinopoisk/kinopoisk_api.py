@@ -10,9 +10,9 @@ from errors.api.kinopoisk import KinopoiskApiError
 from utils.errors import log_request_error
 from utils.logging import log
 from utils.models import get_required_fields
+from .dto.core import KinopoiskSlug, SortType
 from .dto.movie import MovieDto
 from .dto.response import ResponseMovieSearch
-from .dto.slug import KinopoiskSlug
 
 __all__ = ["kinopoisk_api"]
 
@@ -99,7 +99,10 @@ class KinopoiskApi:
             self,
             page: int = 1,
             limit: int = 10,
+            *,
             genres: List[KinopoiskSlug] | None = None,
+            sort_fields: list[str] | None = None,
+            sort_types: list[SortType] | None = None,
     ) -> ResponseMovieSearch:
         url = f"{self._base_url}/v1.4/movie"
 
@@ -107,9 +110,13 @@ class KinopoiskApi:
             "page": page,
             "limit": limit,
             "selectFields": get_required_fields(MovieDto),
-            "sortField": ["rating.kp", "rating.imdb"],
-            "sortType": ["-1", "-1"],
         }
+
+        if sort_fields:
+            params["sortField"] = sort_fields
+
+        if sort_types:
+            params["sortType"] = list(map(str, sort_types))
 
         if genres:
             params["genres.name"] = [

@@ -24,7 +24,7 @@ def log_request_error(error_cls: Type[Exception]):
             try:
                 return func(*args, **kwargs)
             except (RequestException, ValueError) as ex:
-                log.error(
+                log.opt(depth=1).error(
                     "API request failed in {}: args={} kwargs={} err={}",
                     func.__name__, args, kwargs, ex,
                 )

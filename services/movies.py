@@ -1,23 +1,34 @@
 from telebot.types import CallbackQuery
 
-from loader import bot
+from api.kinopoisk.dto.response import ResponseMovieSearch
+from api.kinopoisk.kinopoisk_api import kinopoisk_api
 
 
 class MovieService:
-    def search_by_name(self, call: CallbackQuery) -> None:
-        bot.send_message(call.message.chat.id, call.data)
+
+    def search_by_name(
+            self,
+            search_name: str,
+            page: int,
+            page_size: int,
+    ) -> ResponseMovieSearch:
+        return kinopoisk_api.search_movies_by_name(
+            search_name=search_name,
+            page=page,
+            limit=page_size,
+        )
 
     def search_by_rating(self, call: CallbackQuery) -> None:
-        bot.send_message(call.message.chat.id, call.data)
+        pass
 
     def search_low_budget(self, call: CallbackQuery) -> None:
-        bot.send_message(call.message.chat.id, call.data)
+        pass
 
     def search_high_budget(self, call: CallbackQuery) -> None:
-        bot.send_message(call.message.chat.id, call.data)
+        pass
 
     def show_history(self, call: CallbackQuery) -> None:
-        bot.send_message(call.message.chat.id, call.data)
+        pass
 
 
 movie_service = MovieService()

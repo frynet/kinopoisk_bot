@@ -1,0 +1,8 @@
+CUR_PAGE = "page"
+PAGE_SIZE = "page_size"
+MAX_PAGES = "max_pages"
+MOVIE_ID = "movie_id"
+MOVIE_NAME = "movie_name"
+INITIAL_HANDLER = "init_handler"
+UPDATE_HANDLER = "update_handler"
+SENT_MOVIES_IDS = "movies_messages_ids"

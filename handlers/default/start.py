@@ -10,10 +10,9 @@ from utils.telegram import delete_message
 
 @bot.message_handler(commands=["start"])
 def bot_start(msg: Message) -> None:
-    user_service.get_or_create_user(msg.from_user)
-    text = welcome_text(msg.from_user.full_name) + BOT_WHAT_CAN_I_DO
+    _prepare(msg)
 
-    delete_message(bot, msg)
+    text = welcome_text(msg.from_user.full_name) + BOT_WHAT_CAN_I_DO
 
     bot.send_message(
         chat_id=msg.chat.id,
@@ -30,3 +29,9 @@ def bot_start(msg: Message) -> None:
 
 def welcome_text(username: str) -> str:
     return f"Привет, {username}! 👋\n\n" + BOT_WELCOME_TEXT
+
+
+def _prepare(msg: Message) -> None:
+    bot.delete_state(msg.from_user.id, msg.chat.id)
+    user_service.get_or_create_user(msg.from_user)
+    delete_message(bot, msg)

@@ -6,6 +6,7 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQu
 
 from loader import bot
 from services.movies import movie_service
+from states.custom.search_by_name import start_search_by_name_flow
 from texts import (
     BTN_SEARCH_BY_NAME,
     BTN_SEARCH_BY_RATING,
@@ -24,7 +25,7 @@ class MenuItem:
 
 
 class MainMenuButton(Enum):
-    SEARCH_BY_NAME = MenuItem(BTN_SEARCH_BY_NAME, movie_service.search_by_name)
+    SEARCH_BY_NAME = MenuItem(BTN_SEARCH_BY_NAME, start_search_by_name_flow)
     SEARCH_BY_RATING = MenuItem(BTN_SEARCH_BY_RATING, movie_service.search_by_rating)
     SEARCH_LOW_BUDGET = MenuItem(BTN_SEARCH_LOW_BUDGET, movie_service.search_low_budget)
     SEARCH_HIGH_BUDGET = MenuItem(BTN_SEARCH_HIGH_BUDGET, movie_service.search_high_budget)
@@ -32,12 +33,12 @@ class MainMenuButton(Enum):
 
 
 def create_main_menu() -> InlineKeyboardMarkup:
-    markup = InlineKeyboardMarkup(row_width=2)
+    keyboard = InlineKeyboardMarkup(row_width=2)
 
     for btn in MainMenuButton:
-        markup.add(InlineKeyboardButton(text=btn.value.text, callback_data=btn.name))
+        keyboard.add(InlineKeyboardButton(text=btn.value.text, callback_data=btn.name))
 
-    return markup
+    return keyboard
 
 
 @bot.callback_query_handler(func=lambda call: call.data in MainMenuButton.__members__)

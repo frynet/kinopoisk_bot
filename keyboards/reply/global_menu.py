@@ -1,14 +1,10 @@
-from telebot.types import ReplyKeyboardMarkup, KeyboardButton
+from telebot.types import ReplyKeyboardMarkup
 
-from texts import BTN_HELP_TXT, BTN_MAIN_MENU_TXT
+from keyboards.common import BTN_HELP, BTN_MAIN_MENU
 
 
 def create_global_menu() -> ReplyKeyboardMarkup:
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-
-    btn_help = KeyboardButton(BTN_HELP_TXT)
-    btn_main = KeyboardButton(BTN_MAIN_MENU_TXT)
-
-    keyboard.add(btn_main, btn_help)
+    keyboard.add(BTN_MAIN_MENU, BTN_HELP)
 
     return keyboard

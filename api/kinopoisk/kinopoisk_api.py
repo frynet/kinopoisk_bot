@@ -80,16 +80,19 @@ class KinopoiskApi:
     def search_movies_by_name(
             self,
             search_name: str,
-            page: int = 1,
-            limit: int = 10,
+            page: int | None = None,
+            limit: int | None = None,
     ) -> ResponseMovieSearch:
 
         url = f"{self._base_url}/v1.4/movie/search"
         params = {
             "query": search_name.strip(),
-            "page": page,
-            "limit": limit,
         }
+
+        if page:
+            params["page"] = str(page)
+        if limit:
+            params["limit"] = str(limit)
 
         data = self._request("GET", url, params=params)
 

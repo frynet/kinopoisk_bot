@@ -1,7 +1,7 @@
-import handlers  # noqa
 from loader import bot
-from utils.set_bot_commands import set_default_commands
 
 if __name__ == "__main__":
-    set_default_commands(bot)
+    import states  # noqa
+    import handlers  # noqa
+
     bot.infinity_polling(skip_pending=True)

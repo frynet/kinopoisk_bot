@@ -6,6 +6,13 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQu
 
 from loader import bot
 from services.movies import movie_service
+from texts import (
+    BTN_SEARCH_BY_NAME,
+    BTN_SEARCH_BY_RATING,
+    BTN_SEARCH_LOW_BUDGET,
+    BTN_SEARCH_HIGH_BUDGET,
+    BTN_SEARCH_HISTORY,
+)
 
 __all__ = ["create_main_menu"]
 
@@ -17,11 +24,11 @@ class MenuItem:
 
 
 class MainMenuButton(Enum):
-    SEARCH_BY_NAME = MenuItem("🎬 Поиск по названию", movie_service.search_by_name)
-    SEARCH_BY_RATING = MenuItem("⭐ Поиск по рейтингу", movie_service.search_by_rating)
-    SEARCH_LOW_BUDGET = MenuItem("💸 С низким бюджетом", movie_service.search_low_budget)
-    SEARCH_HIGH_BUDGET = MenuItem("💰 С высоким бюджетом", movie_service.search_high_budget)
-    SEARCH_HISTORY = MenuItem("📜 История поиска", movie_service.show_history)
+    SEARCH_BY_NAME = MenuItem(BTN_SEARCH_BY_NAME, movie_service.search_by_name)
+    SEARCH_BY_RATING = MenuItem(BTN_SEARCH_BY_RATING, movie_service.search_by_rating)
+    SEARCH_LOW_BUDGET = MenuItem(BTN_SEARCH_LOW_BUDGET, movie_service.search_low_budget)
+    SEARCH_HIGH_BUDGET = MenuItem(BTN_SEARCH_HIGH_BUDGET, movie_service.search_high_budget)
+    SEARCH_HISTORY = MenuItem(BTN_SEARCH_HISTORY, movie_service.show_history)
 
 
 def create_main_menu() -> InlineKeyboardMarkup:

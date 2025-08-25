@@ -1,22 +1,13 @@
 from telebot.types import Message
 
 from loader import bot
+from texts import BOT_WHAT_CAN_I_DO
 from utils.telegram import delete_message
-
-
-def what_can_i_do() -> str:
-    return (
-        "Вот что я умею:\n"
-        "• 🔎 Поиск фильмов по названию\n"
-        "• ⭐ Поиск фильмов по рейтингу\n"
-        "• 💰 Поиск фильмов по бюджету\n"
-        "• 🕓 Просмотр истории твоего поиска\n"
-    )
 
 
 @bot.message_handler(commands=["help"])
 def bot_help(msg: Message) -> None:
-    text = "ℹ️ Помощь\n\n" + what_can_i_do()
+    text = "ℹ️ Помощь\n\n" + BOT_WHAT_CAN_I_DO
 
     delete_message(bot, msg)
 

@@ -6,14 +6,8 @@ from telebot.types import Message
 
 from errors.api.kinopoisk import KinopoiskApiError
 from loader import bot
+from texts import ERR_KINOPOISK_UNAVAILABLE, ERR_COMMON
 from .logging import log
-
-_FRIENDLY_ERROR_TEXT = (
-    f"⚠️ Сервис временно недоступен."
-    f"Мы уже знаем о проблеме и работаем над её решением 🙂"
-)
-
-_FRIENDLY_ERROR_KINOPOISK_TEXT = "😔 Кинопоиск сейчас недоступен, попробуйте позже."
 
 
 def log_request_error(error_cls: Type[Exception]):
@@ -55,9 +49,9 @@ def user_friendly_errors(func):
         try:
             return func(msg, *args, **kwargs)
         except KinopoiskApiError:
-            bot.send_message(msg.chat.id, _FRIENDLY_ERROR_KINOPOISK_TEXT)
+            bot.send_message(msg.chat.id, ERR_KINOPOISK_UNAVAILABLE)
         except Exception as ex:
             log.error("Unexpected error in handler {}: {}", func.__name__, ex)
-            bot.send_message(msg.chat.id, _FRIENDLY_ERROR_TEXT)
+            bot.send_message(msg.chat.id, ERR_COMMON)
 
     return wrapper

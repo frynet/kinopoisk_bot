@@ -3,11 +3,6 @@ from telebot.states.sync import StateContext
 from telebot.types import CallbackQuery
 
 from loader import bot
-from states.data_keys import (
-    CUR_PAGE, MAX_PAGES, PAGE_SIZE,
-    UPDATE_HANDLER, INITIAL_HANDLER,
-)
-from states.registry import execute_handler
 from texts import (
     ERR_INVALID_PAGE_SIZE,
     BOT_PAGINATE_ALREADY_FIRST_PAGE_SELECT,
@@ -15,6 +10,11 @@ from texts import (
 )
 from utils.callbacks import callback_match, Action, callback_parse
 from utils.telegram import delete_message
+from ..core.data_keys import (
+    CUR_PAGE, MAX_PAGES, PAGE_SIZE,
+    UPDATE_HANDLER, INITIAL_HANDLER,
+)
+from ..core.handlers.registry import execute_handler
 
 
 class PaginationStates(StatesGroup):

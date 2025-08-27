@@ -2,7 +2,7 @@ from typing import Iterable
 
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from states.data_keys import PAGE_SIZE
+from states.core.data_keys import PAGE_SIZE
 from states.default.pagination import PaginationStates
 from texts import BTN_BACK_TXT, BTN_FORWARD_TXT
 from utils.callbacks import callback_gen, Action

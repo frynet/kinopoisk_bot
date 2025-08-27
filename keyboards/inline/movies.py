@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from states.data_keys import MOVIE_ID
+from states.core.data_keys import MOVIE_ID
 from texts import BTN_MOVIE_WATCHED, BTN_MOVIE_UNWATCHED
 from utils.callbacks import callback_gen, Action
 

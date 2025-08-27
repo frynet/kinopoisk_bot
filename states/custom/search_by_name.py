@@ -7,18 +7,14 @@ from telebot.types import CallbackQuery, Message
 from keyboards.inline.pagination import page_size_kb
 from loader import bot
 from services.movies import movie_service
-from states.data_keys import (
-    INITIAL_HANDLER, UPDATE_HANDLER,
-    MOVIE_NAME, SENT_MOVIES_IDS,
-)
-from states.default.pagination import PaginationStates
-from states.registry import register_handler, get_key
-from states.renderers.movies import send_movies
 from texts import (
-    BOT_SEARCH_RESULTS, ERR_GIVEN_EMPTY_NAME,
+    ERR_GIVEN_EMPTY_NAME,
     USER_REQUEST_MOVIE_NAME, USER_REQUEST_PAGE_SIZE,
 )
-from utils.telegram import delete_message_by_id
+from ..core.data_keys import MOVIE_NAME
+from ..core.handlers.movies import set_handlers, register_show_movies_handlers
+from ..core.renderers.movies import render_movies_page
+from ..default.pagination import PaginationStates
 
 __all__ = ["start_search_by_name_flow"]
 
@@ -50,8 +46,7 @@ def handle_name_input(msg: Message, state: StateContext):
 
     with state.data() as ctx:
         ctx[MOVIE_NAME] = name
-        ctx[INITIAL_HANDLER] = get_key(SearchByNameFlow, "init_page")
-        ctx[UPDATE_HANDLER] = get_key(SearchByNameFlow, "update_page")
+        set_handlers(SearchByNameFlow, ctx)
 
     state.set(PaginationStates.set_page_size)
 
@@ -62,34 +57,18 @@ def handle_name_input(msg: Message, state: StateContext):
     )
 
 
-@register_handler(SearchByNameFlow, "init_page")
-def init_page(chat_id: int, state: StateContext):
-    """Первичное отображение результатов поиска."""
-    bot.send_message(chat_id, BOT_SEARCH_RESULTS)
-
-    _show_movies(chat_id, state)
-
-
-@register_handler(SearchByNameFlow, "update_page")
-def update_page(chat_id: int, state: StateContext):
-    with state.data() as ctx:
-        old_ids = ctx.get(SENT_MOVIES_IDS, [])
-
-    for msg_id in old_ids:
-        delete_message_by_id(bot, chat_id, msg_id)
-
-    _show_movies(chat_id, state)
-
-
-def _show_movies(chat_id, state):
+def _render_movies(chat_id, state):
     with state.data() as ctx:
         name = ctx.get(MOVIE_NAME)
 
     api_call = lambda page, page_size: movie_service.search_by_name(name, page, page_size)
 
-    send_movies(
+    render_movies_page(
         chat_id=chat_id,
         state=state,
         reset_to_state=SearchByNameFlow.name,
         get_movies=api_call,
     )
+
+
+register_show_movies_handlers(SearchByNameFlow, _render_movies)

@@ -9,12 +9,14 @@ from api.kinopoisk.dto.response import ResponseMovieSearch
 from keyboards.inline.movies import movie_actions_kb
 from keyboards.inline.pagination import pagination_kb_text, pagination_kb
 from loader import bot
-from states.data_keys import CUR_PAGE, PAGE_SIZE, MAX_PAGES, SENT_MOVIES_IDS
 from texts import BOT_SEARCH_RESULTS_NOT_FOUND
 from utils.logging import log
+from ..data_keys import CUR_PAGE, PAGE_SIZE, MAX_PAGES, OLD_MOVIES_IDS
+
+__all__ = ["render_movies_page"]
 
 
-def send_movies(
+def render_movies_page(
         chat_id: int,
         state: StateContext,
         reset_to_state: State,
@@ -51,7 +53,7 @@ def send_movies(
         reply_markup=pagination_kb(),
     )
 
-    state_data[SENT_MOVIES_IDS] = new_ids + [nav_msg.message_id]
+    state_data[OLD_MOVIES_IDS] = new_ids + [nav_msg.message_id]
 
     state.add_data(**state_data)
 

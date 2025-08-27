@@ -55,9 +55,10 @@ def handle_page_size(
 @bot.callback_query_handler(
     func=callback_match(PaginationStates, [Action.PREV_PAGE])
 )
-def handle_prev_page(call: CallbackQuery, state: StateContext):
-    bot.answer_callback_query(call.id)
-
+def handle_prev_page(
+        call: CallbackQuery,
+        state: StateContext,
+):
     with state.data() as ctx:
         page = ctx.get(CUR_PAGE)
 
@@ -73,6 +74,8 @@ def handle_prev_page(call: CallbackQuery, state: StateContext):
         ctx[CUR_PAGE] = page - 1
         handler = ctx.get(UPDATE_HANDLER)
 
+    bot.answer_callback_query(call.id)
+
     if handler:
         execute_handler(handler, call.message.chat.id, state)
 
@@ -80,9 +83,10 @@ def handle_prev_page(call: CallbackQuery, state: StateContext):
 @bot.callback_query_handler(
     func=callback_match(PaginationStates, [Action.NEXT_PAGE])
 )
-def handle_next_page(call: CallbackQuery, state: StateContext):
-    bot.answer_callback_query(call.id)
-
+def handle_next_page(
+        call: CallbackQuery,
+        state: StateContext,
+):
     with state.data() as ctx:
         page = ctx.get(CUR_PAGE)
         max_pages = ctx.get(MAX_PAGES)
@@ -98,6 +102,8 @@ def handle_next_page(call: CallbackQuery, state: StateContext):
 
         ctx[CUR_PAGE] = page + 1
         handler = ctx.get(UPDATE_HANDLER)
+
+    bot.answer_callback_query(call.id)
 
     if handler:
         execute_handler(handler, call.message.chat.id, state)

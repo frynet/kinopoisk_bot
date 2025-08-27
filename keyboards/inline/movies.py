@@ -1,36 +1,13 @@
 from __future__ import annotations
 
-from collections.abc import Iterable
-
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from states.data_keys import PAGE_SIZE, MOVIE_ID
-from states.default.pagination import PaginationStates
+from states.data_keys import MOVIE_ID
 from texts import BTN_MOVIE_WATCHED, BTN_MOVIE_UNWATCHED
 from utils.callbacks import callback_gen, Action
 
 
-def build_page_size_inline_kb(options: Iterable[int] = (1, 3, 5)) -> InlineKeyboardMarkup:
-    keyboard = InlineKeyboardMarkup()
-
-    row = [
-        InlineKeyboardButton(
-            text=str(opt),
-            callback_data=callback_gen(
-                PaginationStates,
-                Action.SET_PAGE_SIZE,
-                {PAGE_SIZE: str(opt)}
-            ),
-        )
-        for opt in options
-    ]
-
-    keyboard.row(*row)
-
-    return keyboard
-
-
-def build_movie_actions_inline_kb(movie_id: int) -> InlineKeyboardMarkup:
+def movie_actions_kb(movie_id: int) -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup()
 
     keyboard.row(

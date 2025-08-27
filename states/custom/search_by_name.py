@@ -4,7 +4,7 @@ from telebot.handler_backends import State, StatesGroup
 from telebot.states.sync import StateContext
 from telebot.types import CallbackQuery, Message
 
-from keyboards.inline.search_by_name import build_page_size_inline_kb
+from keyboards.inline.pagination import page_size_kb
 from loader import bot
 from services.movies import movie_service
 from states.data_keys import (
@@ -50,38 +50,38 @@ def handle_name_input(msg: Message, state: StateContext):
 
     with state.data() as ctx:
         ctx[MOVIE_NAME] = name
-        ctx[INITIAL_HANDLER] = get_key(SearchByNameFlow, "show_initial_page")
-        ctx[UPDATE_HANDLER] = get_key(SearchByNameFlow, "show_updated_page")
+        ctx[INITIAL_HANDLER] = get_key(SearchByNameFlow, "init_page")
+        ctx[UPDATE_HANDLER] = get_key(SearchByNameFlow, "update_page")
 
     state.set(PaginationStates.set_page_size)
 
     bot.send_message(
         msg.chat.id,
         text=USER_REQUEST_PAGE_SIZE,
-        reply_markup=build_page_size_inline_kb(),
+        reply_markup=page_size_kb(),
     )
 
 
-@register_handler(SearchByNameFlow, "show_initial_page")
-def show_initial_page(chat_id: int, state: StateContext):
+@register_handler(SearchByNameFlow, "init_page")
+def init_page(chat_id: int, state: StateContext):
     """Первичное отображение результатов поиска."""
     bot.send_message(chat_id, BOT_SEARCH_RESULTS)
 
-    _show_movies_page(chat_id, state)
+    _show_movies(chat_id, state)
 
 
-@register_handler(SearchByNameFlow, "show_updated_page")
-def show_updated_page(chat_id: int, state: StateContext):
+@register_handler(SearchByNameFlow, "update_page")
+def update_page(chat_id: int, state: StateContext):
     with state.data() as ctx:
         old_ids = ctx.get(SENT_MOVIES_IDS, [])
 
     for msg_id in old_ids:
         delete_message_by_id(bot, chat_id, msg_id)
 
-    _show_movies_page(chat_id, state)
+    _show_movies(chat_id, state)
 
 
-def _show_movies_page(chat_id, state):
+def _show_movies(chat_id, state):
     with state.data() as ctx:
         name = ctx.get(MOVIE_NAME)
 

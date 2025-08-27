@@ -6,8 +6,8 @@ from telebot.types import Message
 
 from api.kinopoisk.dto.movie import MovieDto
 from api.kinopoisk.dto.response import ResponseMovieSearch
-from keyboards.inline.pagination import build_pagination_kb_text, build_pagination_kb
-from keyboards.inline.search_by_name import build_movie_actions_inline_kb
+from keyboards.inline.movies import movie_actions_kb
+from keyboards.inline.pagination import pagination_kb_text, pagination_kb
 from loader import bot
 from states.data_keys import CUR_PAGE, PAGE_SIZE, MAX_PAGES, SENT_MOVIES_IDS
 from texts import BOT_SEARCH_RESULTS_NOT_FOUND
@@ -47,8 +47,8 @@ def send_movies(
 
     nav_msg = bot.send_message(
         chat_id,
-        text=build_pagination_kb_text(resp.page, resp.pages),
-        reply_markup=build_pagination_kb(),
+        text=pagination_kb_text(resp.page, resp.pages),
+        reply_markup=pagination_kb(),
     )
 
     state_data[SENT_MOVIES_IDS] = new_ids + [nav_msg.message_id]
@@ -63,7 +63,7 @@ def send_movie(
     """Отправляет карточку фильма"""
 
     text = str(movie)
-    keyboard = build_movie_actions_inline_kb(movie.id)
+    keyboard = movie_actions_kb(movie.id)
 
     try:
         if movie.poster and movie.poster.url:

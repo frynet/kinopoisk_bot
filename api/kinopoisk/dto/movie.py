@@ -19,6 +19,7 @@ class MoviePosterDto(BaseModel):
 
 class MovieRating(BaseModel):
     kp: float | None = None
+    imdb: float | None = None
 
 
 class MovieType(str, Enum):
@@ -77,8 +78,15 @@ class MovieDto(BaseModel):
         if self.type:
             parts.append(f"🎬 <b>Тип:</b> {self.type.label}")
 
-        if self.rating and self.rating.kp:
-            parts.append(f"⭐️ <b>Кинопоиск:</b> {self.rating.kp:.1f}")
+        if self.rating:
+            ratings = [
+                f"Кинопоиск: {self.rating.kp:.1f}" if self.rating.kp else None,
+                f"IMDb: {self.rating.imdb:.1f}" if self.rating.imdb else None,
+            ]
+            ratings = list(filter(None, ratings))
+
+            if ratings:
+                parts.append(f"⭐️ <b>{' | '.join(ratings)}</b>")
 
         meta = []
         if self.genres:

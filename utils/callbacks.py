@@ -31,6 +31,8 @@ class Action(Enum):
     NEXT_PAGE = auto()
     SELECT_MOVIE_TYPE = auto()
     SELECT_RATING_RANGE = auto()
+    SELECT_GENRE = auto()
+    NAVIGATE_GENRES = auto()
 
 
 @dataclass(

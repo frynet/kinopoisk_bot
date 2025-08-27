@@ -104,7 +104,7 @@ class KinopoiskApi:
             limit: int = 10,
             *,
             movie_types: list[str] | None = None,
-            genres: list[KinopoiskSlug] | None = None,
+            genres: list[str] | None = None,
             rating_kp: list[str] | None = None,
             sort_fields: list[SortField] | None = None,
             sort_types: list[SortType] | None = None,
@@ -131,7 +131,7 @@ class KinopoiskApi:
 
         if genres:
             params["genres.name"] = [
-                f"+{genre.name}"
+                f"+{genre}"
                 for genre in genres
             ]
 

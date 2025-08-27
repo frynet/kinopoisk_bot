@@ -4,30 +4,32 @@ from telebot.handler_backends import State, StatesGroup
 from telebot.states.sync import StateContext
 from telebot.types import CallbackQuery
 
+from keyboards.inline.movie_genres import genres_kb
 from keyboards.inline.pagination import page_size_kb
 from keyboards.inline.search_by_rating import movie_type_kb, movie_rating_kb
 from loader import bot
 from services.movies import movie_service
 from texts import (
-    USER_REQUEST_PAGE_SIZE,
-    USER_REQUEST_MOVIE_TYPE, USER_REQUEST_RATING_RANGE,
+    USER_REQUEST_PAGE_SIZE, USER_REQUEST_MOVIE_TYPE,
+    USER_REQUEST_GENRE, USER_REQUEST_RATING_RANGE,
 )
 from utils.callbacks import callback_match, Action, callback_parse
 from utils.telegram import delete_message
-from ..core.data_keys import MOVIE_TYPE, MOVIE_RATING
+from ..core.data_keys import MOVIE_TYPE, MOVIE_RATING, MOVIE_GENRE
 from ..core.handlers.movies import set_handlers, register_show_movies_handlers
 from ..core.renderers.movies import render_movies_page
 from ..default.pagination import PaginationStates
 
-__all__ = ["SearchByRatingFlow", "start_search_by_rating_flow"]
+__all__ = ["search_by_rating_flow"]
 
 
 class SearchByRatingFlow(StatesGroup):
     select_type = State()
+    select_genre = State()
     select_rating = State()
 
 
-def start_search_by_rating_flow(call: CallbackQuery):
+def search_by_rating_flow(call: CallbackQuery):
     bot.answer_callback_query(call.id)
     delete_message(bot, call.message)
 
@@ -56,6 +58,50 @@ def select_movie_type(call: CallbackQuery, state: StateContext):
 
     with state.data() as ctx:
         ctx[MOVIE_TYPE] = movie_type
+
+    state.set(SearchByRatingFlow.select_genre)
+
+    bot.edit_message_text(
+        chat_id=call.message.chat.id,
+        message_id=call.message.message_id,
+        text=USER_REQUEST_GENRE,
+        reply_markup=genres_kb(movie_service.get_genres()),
+    )
+
+
+@bot.callback_query_handler(
+    func=callback_match(None, [Action.NAVIGATE_GENRES])
+)
+def genre_navigation(call: CallbackQuery):
+    bot.answer_callback_query(call.id)
+
+    data = callback_parse(call.data)
+    page = int(data.payload.get("page", 0))
+
+    bot.edit_message_reply_markup(
+        chat_id=call.message.chat.id,
+        message_id=call.message.message_id,
+        reply_markup=genres_kb(
+            genres=movie_service.get_genres(),
+            page=page,
+        ),
+    )
+
+
+@bot.callback_query_handler(
+    func=callback_match(None, [Action.SELECT_GENRE])
+)
+def select_genre(call: CallbackQuery, state: StateContext):
+    bot.answer_callback_query(call.id)
+
+    data = callback_parse(call.data)
+    genre = data.payload.get(MOVIE_GENRE)
+
+    if not genre:
+        return
+
+    with state.data() as ctx:
+        ctx[MOVIE_GENRE] = genre
 
     state.set(SearchByRatingFlow.select_rating)
 
@@ -95,11 +141,12 @@ def select_rating(call: CallbackQuery, state: StateContext):
 def _show_movies(chat_id: int, state: StateContext):
     with state.data() as ctx:
         movie_type = ctx.get(MOVIE_TYPE)
+        genre = ctx.get(MOVIE_GENRE)
         rating_range = ctx.get(MOVIE_RATING)
 
     api_call = lambda page, page_size: movie_service.search_by_rating(
         movie_type=movie_type,
-        genre=None,
+        genre=genre,
         rating_range=rating_range,
         page=page,
         page_size=page_size,

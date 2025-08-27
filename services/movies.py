@@ -1,6 +1,6 @@
 from telebot.types import CallbackQuery
 
-from api.kinopoisk.dto.core import KinopoiskSlug, SortField, SortType
+from api.kinopoisk.dto.core import SortField, SortType
 from api.kinopoisk.dto.response import ResponseMovieSearch
 from api.kinopoisk.kinopoisk_api import kinopoisk_api
 
@@ -28,7 +28,7 @@ class MovieService:
             page_size: int,
             rating_range: str,
             movie_type: str | None = None,
-            genre: KinopoiskSlug | None = None,
+            genre: str | None = None,
     ) -> ResponseMovieSearch:
         return kinopoisk_api.search_movies(
             page=page,

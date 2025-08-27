@@ -29,6 +29,8 @@ class Action(Enum):
     MARK_UNWATCHED = auto()
     PREV_PAGE = auto()
     NEXT_PAGE = auto()
+    SELECT_MOVIE_TYPE = auto()
+    SELECT_RATING_RANGE = auto()
 
 
 @dataclass(

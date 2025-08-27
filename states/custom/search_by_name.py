@@ -11,6 +11,7 @@ from texts import (
     ERR_GIVEN_EMPTY_NAME,
     USER_REQUEST_MOVIE_NAME, USER_REQUEST_PAGE_SIZE,
 )
+from utils.telegram import delete_message
 from ..core.data_keys import MOVIE_NAME
 from ..core.handlers.movies import set_handlers, register_show_movies_handlers
 from ..core.renderers.movies import render_movies_page
@@ -25,6 +26,7 @@ class SearchByNameFlow(StatesGroup):
 
 def start_search_by_name_flow(call: CallbackQuery):
     bot.answer_callback_query(call.id)
+    delete_message(bot, call.message)
 
     user_id = call.from_user.id
     chat_id = call.message.chat.id
@@ -57,7 +59,7 @@ def handle_name_input(msg: Message, state: StateContext):
     )
 
 
-def _render_movies(chat_id, state):
+def _show_movies(chat_id, state):
     with state.data() as ctx:
         name = ctx.get(MOVIE_NAME)
 
@@ -71,4 +73,4 @@ def _render_movies(chat_id, state):
     )
 
 
-register_show_movies_handlers(SearchByNameFlow, _render_movies)
+register_show_movies_handlers(SearchByNameFlow, _show_movies)

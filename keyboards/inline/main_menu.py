@@ -7,6 +7,7 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQu
 from loader import bot
 from services.movies import movie_service
 from states.custom.search_by_name import start_search_by_name_flow
+from states.custom.search_by_rating import start_search_by_rating_flow
 from texts import (
     BTN_SEARCH_BY_NAME,
     BTN_SEARCH_BY_RATING,
@@ -26,7 +27,7 @@ class MenuItem:
 
 class MainMenuButton(Enum):
     SEARCH_BY_NAME = MenuItem(BTN_SEARCH_BY_NAME, start_search_by_name_flow)
-    SEARCH_BY_RATING = MenuItem(BTN_SEARCH_BY_RATING, movie_service.search_by_rating)
+    SEARCH_BY_RATING = MenuItem(BTN_SEARCH_BY_RATING, start_search_by_rating_flow)
     SEARCH_LOW_BUDGET = MenuItem(BTN_SEARCH_LOW_BUDGET, movie_service.search_low_budget)
     SEARCH_HIGH_BUDGET = MenuItem(BTN_SEARCH_HIGH_BUDGET, movie_service.search_high_budget)
     SEARCH_HISTORY = MenuItem(BTN_SEARCH_HISTORY, movie_service.show_history)

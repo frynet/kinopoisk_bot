@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import textwrap
-from typing import List
+from enum import Enum
+from typing import List, Any
 
-from pydantic import BaseModel, HttpUrl, Field
+from pydantic import BaseModel, HttpUrl, Field, field_validator
+
+from utils.logging import log
 
 
 class MovieGenreDto(BaseModel):
@@ -17,6 +20,32 @@ class MoviePosterDto(BaseModel):
 class MovieRating(BaseModel):
     kp: float | None = None
 
+
+class MovieType(str, Enum):
+    ANIMATED_SERIES = "animated-series"
+    ANIME = "anime"
+    CARTOON = "cartoon"
+    MOVIE = "movie"
+    TV_SERIES = "tv-series"
+
+    @property
+    def label(self) -> str:
+        return {
+            MovieType.ANIMATED_SERIES: "Анимационный сериал",
+            MovieType.ANIME: "Аниме",
+            MovieType.CARTOON: "Мультфильм",
+            MovieType.MOVIE: "Фильм",
+            MovieType.TV_SERIES: "Сериал",
+        }.get(self, self.value)
+
+    @classmethod
+    def from_str(cls, value: str) -> MovieType | None:
+        try:
+            return cls(value)
+        except ValueError:
+            log.warning(f"[MovieType] Unknown type received: {value!r}")
+            return None
+
 class MovieDto(BaseModel):
     id: int
     name: str | None = None
@@ -26,10 +55,16 @@ class MovieDto(BaseModel):
     age_rating: int | None = Field(default=None, alias="ageRating")
     poster: MoviePosterDto | None = None
     rating: MovieRating | None = None
+    type: MovieType | None = None
 
     class Config:
         extra = "ignore"
         populate_by_name = True
+
+    @classmethod
+    @field_validator("type", mode="before")
+    def validate_type(cls, value: Any) -> MovieType | None:
+        return MovieType.from_str(value) if isinstance(value, str) else value
 
     def __str__(self):
         parts = [
@@ -38,6 +73,9 @@ class MovieDto(BaseModel):
                 f" ({self.year})" if self.year else ""
             )
         ]
+
+        if self.type:
+            parts.append(f"🎬 <b>Тип:</b> {self.type.label}")
 
         if self.rating and self.rating.kp:
             parts.append(f"⭐️ <b>Кинопоиск:</b> {self.rating.kp:.1f}")

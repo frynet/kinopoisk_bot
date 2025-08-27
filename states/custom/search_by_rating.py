@@ -45,7 +45,7 @@ def start_search_by_rating_flow(call: CallbackQuery):
 @bot.callback_query_handler(
     func=callback_match(None, [Action.SELECT_MOVIE_TYPE])
 )
-def handle_movie_type_select(call: CallbackQuery, state: StateContext):
+def select_movie_type(call: CallbackQuery, state: StateContext):
     bot.answer_callback_query(call.id)
 
     data = callback_parse(call.data)
@@ -70,7 +70,7 @@ def handle_movie_type_select(call: CallbackQuery, state: StateContext):
 @bot.callback_query_handler(
     func=callback_match(SearchByRatingFlow, [Action.SELECT_RATING_RANGE])
 )
-def handle_rating_range_selection(call: CallbackQuery, state: StateContext):
+def select_rating(call: CallbackQuery, state: StateContext):
     bot.answer_callback_query(call.id)
 
     data = callback_parse(call.data)

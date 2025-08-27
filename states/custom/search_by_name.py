@@ -17,14 +17,14 @@ from ..core.handlers.movies import set_handlers, register_show_movies_handlers
 from ..core.renderers.movies import render_movies_page
 from ..default.pagination import PaginationStates
 
-__all__ = ["start_search_by_name_flow"]
+__all__ = ["search_by_name_flow"]
 
 
 class SearchByNameFlow(StatesGroup):
     name = State()
 
 
-def start_search_by_name_flow(call: CallbackQuery):
+def search_by_name_flow(call: CallbackQuery):
     bot.answer_callback_query(call.id)
     delete_message(bot, call.message)
 
@@ -39,7 +39,7 @@ def start_search_by_name_flow(call: CallbackQuery):
 
 
 @bot.message_handler(state=SearchByNameFlow.name)
-def handle_name_input(msg: Message, state: StateContext):
+def get_name(msg: Message, state: StateContext):
     name = (msg.text or "").strip()
 
     if not name:

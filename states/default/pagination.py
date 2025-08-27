@@ -25,7 +25,7 @@ class PaginationStates(StatesGroup):
 @bot.callback_query_handler(
     func=callback_match(PaginationStates, [Action.SET_PAGE_SIZE])
 )
-def handle_page_size(
+def select_page_size(
         call: CallbackQuery,
         state: StateContext,
 ):
@@ -55,7 +55,7 @@ def handle_page_size(
 @bot.callback_query_handler(
     func=callback_match(PaginationStates, [Action.PREV_PAGE])
 )
-def handle_prev_page(
+def nav_prev_page(
         call: CallbackQuery,
         state: StateContext,
 ):
@@ -83,7 +83,7 @@ def handle_prev_page(
 @bot.callback_query_handler(
     func=callback_match(PaginationStates, [Action.NEXT_PAGE])
 )
-def handle_next_page(
+def nav_next_page(
         call: CallbackQuery,
         state: StateContext,
 ):

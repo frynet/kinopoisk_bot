@@ -8,7 +8,7 @@ from utils.telegram import delete_message
 @bot.message_handler(commands=["help"])
 def bot_help(msg: Message) -> None:
     _prepare(msg)
-    
+
     text = "ℹ️ Помощь\n\n" + BOT_WHAT_CAN_I_DO
 
     bot.send_message(

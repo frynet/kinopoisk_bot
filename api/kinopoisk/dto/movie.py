@@ -47,6 +47,7 @@ class MovieType(str, Enum):
             log.warning(f"[MovieType] Unknown type received: {value!r}")
             return None
 
+
 class MovieDto(BaseModel):
     id: int
     name: str | None = None

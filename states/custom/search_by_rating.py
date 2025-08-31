@@ -108,12 +108,7 @@ def _show_movies(chat_id: int, state: StateContext):
         page_size=page_size,
     )
 
-    render_movies_page(
-        chat_id=chat_id,
-        state=state,
-        reset_to_state=SearchMoviesStates.select_type,
-        get_movies=api_call,
-    )
+    render_movies_page(chat_id, state, get_movies=api_call)
 
 
 register_show_movies_handlers(SearchByRatingFlow, _show_movies)

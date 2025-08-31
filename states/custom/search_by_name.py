@@ -65,12 +65,7 @@ def _show_movies(chat_id, state):
 
     api_call = lambda page, page_size: movie_service.search_by_name(name, page, page_size)
 
-    render_movies_page(
-        chat_id=chat_id,
-        state=state,
-        reset_to_state=SearchByNameFlow.name,
-        get_movies=api_call,
-    )
+    render_movies_page(chat_id, state, get_movies=api_call)
 
 
 register_show_movies_handlers(SearchByNameFlow, _show_movies)

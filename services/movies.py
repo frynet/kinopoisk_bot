@@ -58,11 +58,38 @@ class MovieService:
             sort_types=[SortType.DESC, SortType.DESC],
         )
 
-    def search_low_budget(self, call: CallbackQuery) -> None:
-        pass
+    def search_low_budget(
+            self,
+            page: int,
+            page_size: int,
+            movie_type: str | None = None,
+            genre: str | None = None,
+    ) -> ResponseMovieSearch:
+        return kinopoisk_api.search_movies(
+            page=page,
+            limit=page_size,
+            movie_types=[movie_type] if movie_type else None,
+            genres=[genre] if genre else None,
+            sort_fields=[SortField.BUDGET],
+            sort_types=[SortType.ASC],
+            not_null_fields=["budget.value"],
+        )
 
-    def search_high_budget(self, call: CallbackQuery) -> None:
-        pass
+    def search_high_budget(
+            self,
+            page: int,
+            page_size: int,
+            movie_type: str | None = None,
+            genre: str | None = None,
+    ) -> ResponseMovieSearch:
+        return kinopoisk_api.search_movies(
+            page=page,
+            limit=page_size,
+            movie_types=[movie_type] if movie_type else None,
+            genres=[genre] if genre else None,
+            sort_fields=[SortField.BUDGET],
+            sort_types=[SortType.DESC],
+        )
 
     def show_history(self, call: CallbackQuery) -> None:
         pass

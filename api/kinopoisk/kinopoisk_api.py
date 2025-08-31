@@ -96,6 +96,7 @@ class KinopoiskApi:
             rating_kp: list[str] | None = None,
             sort_fields: list[SortField] | None = None,
             sort_types: list[SortType] | None = None,
+            not_null_fields: list[str] | None = None,
     ) -> ResponseMovieSearch:
         url = f"{self._base_url}/v1.4/movie"
 
@@ -122,6 +123,9 @@ class KinopoiskApi:
                 f"+{genre}"
                 for genre in genres
             ]
+
+        if not_null_fields:
+            params["notNullFields"] = not_null_fields
 
         data = self._request("GET", url, params=params)
 

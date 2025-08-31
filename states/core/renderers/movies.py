@@ -1,6 +1,5 @@
 from typing import Callable
 
-from telebot.states import State
 from telebot.states.sync import StateContext
 from telebot.types import Message
 
@@ -18,7 +17,6 @@ __all__ = ["render_movies_page"]
 def render_movies_page(
         chat_id: int,
         state: StateContext,
-        reset_to_state: State,
         get_movies: Callable[[int, int], ResponseMovieSearch],
 ):
     state_data = {}
@@ -31,9 +29,7 @@ def render_movies_page(
 
     if not resp.movies:
         bot.send_message(chat_id, BOT_SEARCH_RESULTS_NOT_FOUND)
-
         state.delete()
-        state.set(reset_to_state)
 
         return
 

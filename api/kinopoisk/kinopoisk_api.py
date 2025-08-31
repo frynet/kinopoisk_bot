@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
 from typing import Any, List
 
 from requests import Session
@@ -26,11 +25,9 @@ class KinopoiskApi:
             api_key: str,
             base_url: str,
             request_timeout: int = 10,
-            genres_ttl: timedelta = timedelta(days=1),
     ) -> None:
         self._base_url = base_url
         self._timeout = request_timeout
-        self._genres_ttl = genres_ttl
 
         self._session = Session()
         self._session.headers.update(
@@ -40,13 +37,7 @@ class KinopoiskApi:
             }
         )
 
-        self._genres_cache: List[KinopoiskSlug] | None = None
-        self._genres_cached_at: datetime | None = None
-
     def get_genres(self) -> List[KinopoiskSlug]:
-
-        if self._is_genres_cache_valid():
-            return self._genres_cache or []
 
         url = f"{self._base_url}/v1/movie/possible-values-by-field"
         params = {"field": "genres.name"}
@@ -71,9 +62,6 @@ class KinopoiskApi:
                and it.get("name")
                and it.get("slug")
         ]
-
-        self._genres_cache = genres
-        self._genres_cached_at = self._now()
 
         return genres
 
@@ -150,16 +138,6 @@ class KinopoiskApi:
         response.raise_for_status()
 
         return response.json()
-
-    def _is_genres_cache_valid(self) -> bool:
-        if not self._genres_cache or not self._genres_cached_at:
-            return False
-
-        return (self._now() - self._genres_cached_at) <= self._genres_ttl
-
-    @staticmethod
-    def _now() -> datetime:
-        return datetime.now(timezone.utc)
 
 
 kinopoisk_api = KinopoiskApi(

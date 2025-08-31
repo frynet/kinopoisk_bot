@@ -1,14 +1,32 @@
+from __future__ import annotations
+
+from datetime import datetime, timedelta, timezone
+
 from telebot.types import CallbackQuery
 
-from api.kinopoisk.dto.core import SortField, SortType
+from api.kinopoisk.dto.core import KinopoiskSlug, SortType, SortField
 from api.kinopoisk.dto.response import ResponseMovieSearch
 from api.kinopoisk.kinopoisk_api import kinopoisk_api
 
 
 class MovieService:
 
+    def __init__(
+            self,
+            genres_ttl: timedelta = timedelta(days=1),
+    ) -> None:
+        self._genres_ttl = genres_ttl
+        self._genres_cache: list[KinopoiskSlug] | None = None
+        self._genres_cached_at: datetime | None = None
+
     def get_genres(self):
-        return kinopoisk_api.get_genres()
+        if self._is_genres_cache_valid():
+            return self._genres_cache or []
+
+        self._genres_cache = kinopoisk_api.get_genres()
+        self._genres_cached_at = self._now()
+
+        return self._genres_cache
 
     def search_by_name(
             self,
@@ -48,6 +66,16 @@ class MovieService:
 
     def show_history(self, call: CallbackQuery) -> None:
         pass
+
+    def _is_genres_cache_valid(self) -> bool:
+        if not self._genres_cache or not self._genres_cached_at:
+            return False
+
+        return (self._now() - self._genres_cached_at) <= self._genres_ttl
+
+    @staticmethod
+    def _now() -> datetime:
+        return datetime.now(timezone.utc)
 
 
 movie_service = MovieService()

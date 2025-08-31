@@ -28,7 +28,7 @@ def genres_kb(
     end = start + GENRES_PER_PAGE
 
     buttons = [
-        btn(genre.name.capitalize(), Action.SELECT_GENRE, {MOVIE_GENRE: genre.slug})
+        btn(genre.name.capitalize(), Action.SELECT_GENRE, {MOVIE_GENRE: genre.name})
         for genre in genres[start:end]
     ]
     if buttons:

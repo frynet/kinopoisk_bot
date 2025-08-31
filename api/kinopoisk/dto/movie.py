@@ -6,6 +6,7 @@ from typing import List, Any
 
 from pydantic import BaseModel, HttpUrl, Field, field_validator
 
+from utils.currency import format_currency_value
 from utils.logging import log
 
 
@@ -20,6 +21,11 @@ class MoviePosterDto(BaseModel):
 class MovieRating(BaseModel):
     kp: float | None = None
     imdb: float | None = None
+
+
+class MovieBudget(BaseModel):
+    value: float | None = None
+    currency: str | None = None
 
 
 class MovieType(str, Enum):
@@ -58,6 +64,7 @@ class MovieDto(BaseModel):
     poster: MoviePosterDto | None = None
     rating: MovieRating | None = None
     type: MovieType | None = None
+    budget: MovieBudget | None = None
 
     class Config:
         extra = "ignore"
@@ -95,6 +102,10 @@ class MovieDto(BaseModel):
             meta.append(f"🎭 <b>Жанр:</b> {genres}")
         if self.age_rating is not None:
             meta.append(f"🔞 <b>Возраст:</b> {self.age_rating}+")
+        if self.budget and self.budget.value:
+            currency = self.budget.currency or ""
+            value = format_currency_value(self.budget.value, currency)
+            meta.append(f"💰 <b>Бюджет:</b> {currency}{value}")
         if meta:
             parts.append("\n".join(meta))
 

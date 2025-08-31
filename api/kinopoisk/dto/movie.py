@@ -105,7 +105,10 @@ class MovieDto(BaseModel):
         if self.budget and self.budget.value:
             currency = self.budget.currency or ""
             value = format_currency_value(self.budget.value, currency)
-            meta.append(f"💰 <b>Бюджет:</b> {currency}{value}")
+
+            if value:
+                meta.append(f"💰 <b>Бюджет:</b> {currency}{value}")
+
         if meta:
             parts.append("\n".join(meta))
 

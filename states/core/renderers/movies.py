@@ -6,7 +6,6 @@ from telebot.types import Message
 
 from api.kinopoisk.dto.movie import MovieDto
 from api.kinopoisk.dto.response import ResponseMovieSearch
-from keyboards.inline.movies import movie_actions_kb
 from keyboards.inline.pagination import pagination_kb_text, pagination_kb
 from loader import bot
 from texts import BOT_SEARCH_RESULTS_NOT_FOUND
@@ -65,7 +64,6 @@ def send_movie(
     """Отправляет карточку фильма"""
 
     text = str(movie)
-    keyboard = movie_actions_kb(movie.id)
 
     try:
         if movie.poster and movie.poster.url:
@@ -73,10 +71,9 @@ def send_movie(
                 chat_id,
                 photo=str(movie.poster.url),
                 caption=text,
-                reply_markup=keyboard,
             )
         else:
-            return bot.send_message(chat_id, text, reply_markup=keyboard)
+            return bot.send_message(chat_id, text)
     except Exception as e:
         log.error(f"Ошибка при отправке фильма: {e}")
 

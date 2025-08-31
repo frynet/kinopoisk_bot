@@ -69,6 +69,11 @@ class MovieDto(BaseModel):
     class Config:
         extra = "ignore"
         populate_by_name = True
+        not_null_fields = [
+            "id", "name",
+            "poster.url",
+            "rating.kp",
+        ]
 
     @classmethod
     @field_validator("type", mode="before")

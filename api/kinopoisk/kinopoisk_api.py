@@ -6,6 +6,7 @@ from requests import Session
 
 import config
 from errors.api.kinopoisk import KinopoiskApiError
+from utils.debug import log_http_request
 from utils.errors import log_request_error
 from utils.logging import log
 from utils.models import get_required_fields
@@ -104,6 +105,7 @@ class KinopoiskApi:
             "page": page,
             "limit": limit,
             "selectFields": get_required_fields(MovieDto),
+            "notNullFields": MovieDto.Config.not_null_fields + (not_null_fields if not_null_fields else []),
         }
 
         if sort_fields:
@@ -123,9 +125,6 @@ class KinopoiskApi:
                 f"+{genre}"
                 for genre in genres
             ]
-
-        if not_null_fields:
-            params["notNullFields"] = not_null_fields
 
         data = self._request("GET", url, params=params)
 

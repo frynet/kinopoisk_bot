@@ -95,6 +95,7 @@ class MovieService:
             genres=[genre] if genre else None,
             sort_fields=[SortField.BUDGET_CURRENCY, SortField.BUDGET],
             sort_types=[SortType.ASC, SortType.DESC],
+            not_null_fields=["budget.value", "budget.currency"],
         )
 
     def show_history(self, call: CallbackQuery) -> None:

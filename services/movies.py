@@ -93,14 +93,8 @@ class MovieService:
             limit=page_size,
             movie_types=[movie_type] if movie_type else None,
             genres=[genre] if genre else None,
-            sort_fields=[
-                SortField.BUDGET,
-                SortField.RATING_KINOPOISK, SortField.RATING_IMDB,
-            ],
-            sort_types=[
-                SortType.DESC,
-                SortType.DESC, SortType.DESC,
-            ],
+            sort_fields=[SortField.BUDGET_CURRENCY, SortField.BUDGET],
+            sort_types=[SortType.ASC, SortType.DESC],
         )
 
     def show_history(self, call: CallbackQuery) -> None:

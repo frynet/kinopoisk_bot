@@ -20,3 +20,4 @@ class SortField(str, Enum):
     RATING_KINOPOISK = "rating.kp"
     RATING_IMDB = "rating.imdb"
     BUDGET = "budget.value"
+    BUDGET_CURRENCY = "budget.currency"

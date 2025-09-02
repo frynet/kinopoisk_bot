@@ -2,11 +2,7 @@ from functools import wraps
 from typing import Callable, Any, Type
 
 from requests import RequestException, HTTPError
-from telebot.types import Message
 
-from errors.api.kinopoisk import KinopoiskApiError
-from loader import bot
-from texts import ERR_KINOPOISK_UNAVAILABLE, ERR_COMMON
 from .logging import log
 
 
@@ -41,17 +37,3 @@ def log_request_error(error_cls: Type[Exception]):
         return wrapper
 
     return decorator
-
-
-def user_friendly_errors(func):
-    @wraps(func)
-    def wrapper(msg: Message, *args, **kwargs):
-        try:
-            return func(msg, *args, **kwargs)
-        except KinopoiskApiError:
-            bot.send_message(msg.chat.id, ERR_KINOPOISK_UNAVAILABLE)
-        except Exception as ex:
-            log.error("Unexpected error in handler {}: {}", func.__name__, ex)
-            bot.send_message(msg.chat.id, ERR_COMMON)
-
-    return wrapper

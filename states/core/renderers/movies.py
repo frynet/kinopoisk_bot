@@ -1,15 +1,22 @@
+from itertools import zip_longest
+from pathlib import Path
 from typing import Callable
 
+from telebot.apihelper import ApiTelegramException
 from telebot.states.sync import StateContext
-from telebot.types import Message
+from telebot.types import InputMediaPhoto, InputFile
 
 from api.kinopoisk.dto.movie import MovieDto
 from api.kinopoisk.dto.response import ResponseMovieSearch
-from keyboards.inline.pagination import pagination_kb_text, pagination_kb
+from assets.assets import MOVIE_PLACEHOLDER_PATH
 from loader import bot
-from texts import BOT_SEARCH_RESULTS_NOT_FOUND
+from texts import (
+    BOT_SEARCH_RESULTS,
+    BOT_SEARCH_RESULTS_NOT_FOUND,
+)
 from utils.logging import log
-from ..data_keys import CUR_PAGE, PAGE_SIZE, MAX_PAGES, MOVIE_MESSAGES_IDS
+from ..data_keys import CUR_PAGE, PAGE_SIZE, MAX_PAGES, MOVIE_PAGE_IDS
+from ...default.navigation import create_navigation
 
 __all__ = ["render_movies_page"]
 
@@ -19,11 +26,15 @@ def render_movies_page(
         state: StateContext,
         get_movies: Callable[[int, int], ResponseMovieSearch],
 ):
-    state_data = {}
-
     with state.data() as ctx:
         page = ctx.get(CUR_PAGE, 1)
         page_size = ctx.get(PAGE_SIZE)
+
+        old_ids = ctx.get(MOVIE_PAGE_IDS)
+        old_movie_ids, nav_msg_id = (old_ids[:-1], old_ids[-1]) if old_ids else ([], None)
+
+    if not old_ids:
+        bot.send_message(chat_id, BOT_SEARCH_RESULTS)
 
     resp = get_movies(page, page_size)
 
@@ -33,44 +44,60 @@ def render_movies_page(
 
         return
 
-    state_data[MAX_PAGES] = resp.pages
+    new_movie_ids = []
+    for movie, old_id in zip_longest(resp.movies, old_movie_ids):
+        if movie is not None:
+            if sent := update_movie(chat_id, movie, old_id):
+                new_movie_ids.append(sent)
+        elif old_id:
+            bot.delete_message(chat_id, old_id)
 
-    new_ids = []
-    for movie in resp.movies:
-        sent = send_movie(chat_id, movie)
+    nav_msg_id = create_navigation(resp.page, resp.pages, chat_id, nav_msg_id)
 
-        if sent:
-            new_ids.append(sent.message_id)
-
-    nav_msg = bot.send_message(
-        chat_id,
-        text=pagination_kb_text(resp.page, resp.pages),
-        reply_markup=pagination_kb(),
+    state.add_data(
+        **{
+            MAX_PAGES: resp.pages,
+            MOVIE_PAGE_IDS: [*new_movie_ids, nav_msg_id],
+        }
     )
 
-    state_data[MOVIE_MESSAGES_IDS] = new_ids + [nav_msg.message_id]
 
-    state.add_data(**state_data)
-
-
-def send_movie(
+def update_movie(
         chat_id: int,
         movie: MovieDto,
-) -> Message | None:
-    """Отправляет карточку фильма"""
+        msg_id: int | None = None,
+) -> int | None:
+    """Отправляет карточку фильма или редактирует существующую."""
 
-    text = str(movie)
+    txt = str(movie)
+
+    if movie.poster and movie.poster.url:
+        movie_img = str(movie.poster.url)
+    else:
+        movie_img = InputFile(Path(MOVIE_PLACEHOLDER_PATH).resolve())
 
     try:
-        if movie.poster and movie.poster.url:
-            return bot.send_photo(
-                chat_id,
-                photo=str(movie.poster.url),
-                caption=text,
+        if msg_id:
+            bot.edit_message_media(
+                media=InputMediaPhoto(
+                    media=movie_img,
+                    caption=txt,
+                    parse_mode="HTML",
+                ),
+                chat_id=chat_id,
+                message_id=msg_id,
             )
+
+            return msg_id
         else:
-            return bot.send_message(chat_id, text)
-    except Exception as e:
-        log.error(f"Ошибка при отправке фильма: {e}")
+            msg = bot.send_photo(
+                chat_id,
+                photo=movie_img,
+                caption=txt,
+            )
+
+            return msg.message_id
+    except ApiTelegramException as e:
+        log.error(f"Ошибка при обновлении фильма (msg_id={msg_id}): {e}")
 
     return None

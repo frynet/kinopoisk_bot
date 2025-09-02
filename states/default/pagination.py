@@ -9,12 +9,12 @@ from texts import (
     BOT_PAGINATE_ALREADY_LAST_PAGE_SELECT,
 )
 from utils.callbacks import callback_match, Action, callback_parse
-from utils.telegram import delete_message
 from ..core.data_keys import (
     CUR_PAGE, MAX_PAGES, PAGE_SIZE,
-    UPDATE_HANDLER, INITIAL_HANDLER,
+    DATA_GETTER_FUNC,
 )
-from ..core.handlers.registry import execute_handler
+from ..core.registry import get_func
+from ..core.renderers.movies import render_movies_page
 
 
 class PaginationStates(StatesGroup):
@@ -23,7 +23,7 @@ class PaginationStates(StatesGroup):
 
 
 @bot.callback_query_handler(
-    func=callback_match(PaginationStates, [Action.SET_PAGE_SIZE])
+    func=callback_match(None, [Action.SET_PAGE_SIZE])
 )
 def select_page_size(
         call: CallbackQuery,
@@ -31,6 +31,8 @@ def select_page_size(
 ):
     bot.answer_callback_query(call.id)
 
+    chat_id = call.message.chat.id
+    msg_id = call.message.message_id
     data = callback_parse(call.data)
     page_size = data.payload.get("page_size")
 
@@ -43,17 +45,14 @@ def select_page_size(
         ctx[CUR_PAGE] = 1
         ctx[PAGE_SIZE] = int(page_size)
 
-        handler = ctx.get(INITIAL_HANDLER)
-
     state.set(PaginationStates.page_navigation)
-    delete_message(bot, call.message)
+    bot.delete_message(chat_id, msg_id)
 
-    if handler:
-        execute_handler(handler, call.message.chat.id, state)
+    _render(chat_id, state)
 
 
 @bot.callback_query_handler(
-    func=callback_match(PaginationStates, [Action.PREV_PAGE])
+    func=callback_match(None, [Action.PREV_PAGE])
 )
 def nav_prev_page(
         call: CallbackQuery,
@@ -72,16 +71,13 @@ def nav_prev_page(
             return
 
         ctx[CUR_PAGE] = page - 1
-        handler = ctx.get(UPDATE_HANDLER)
 
     bot.answer_callback_query(call.id)
-
-    if handler:
-        execute_handler(handler, call.message.chat.id, state)
+    _render(call.message.chat.id, state)
 
 
 @bot.callback_query_handler(
-    func=callback_match(PaginationStates, [Action.NEXT_PAGE])
+    func=callback_match(None, [Action.NEXT_PAGE])
 )
 def nav_next_page(
         call: CallbackQuery,
@@ -101,9 +97,17 @@ def nav_next_page(
             return
 
         ctx[CUR_PAGE] = page + 1
-        handler = ctx.get(UPDATE_HANDLER)
 
     bot.answer_callback_query(call.id)
+    _render(call.message.chat.id, state)
 
-    if handler:
-        execute_handler(handler, call.message.chat.id, state)
+
+def _render(chat_id: int, state: StateContext):
+    with state.data() as ctx:
+        data_getter = ctx.get(DATA_GETTER_FUNC)
+
+    if data_getter and (data_getter_func := get_func(data_getter)):
+        render_movies_page(
+            chat_id, state,
+            get_movies=data_getter_func(state),
+        )

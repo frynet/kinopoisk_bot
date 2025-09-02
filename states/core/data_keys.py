@@ -1,13 +1,14 @@
 CUR_PAGE = "page"
 PAGE_SIZE = "page_size"
 MAX_PAGES = "max_pages"
+
 MOVIE_ID = "movie_id"
 MOVIE_TYPE = "movie_type"
 MOVIE_RATING = "movie_rating"
 MOVIE_NAME = "movie_name"
 MOVIE_GENRE = "movie_genre"
-INITIAL_HANDLER = "init_handler"
-UPDATE_HANDLER = "update_handler"
-NEXT_HANDLER_AFTER_GENRE = "next_handler_after_genre"
-MOVIE_MESSAGES_IDS = "movies_messages_ids"
+MOVIE_PAGE_IDS = "movies_messages_ids"
+
+NEXT_STEP_FUNC = "next_step_func"
+DATA_GETTER_FUNC = "data_getter_func"
 PREV_MSG_ID = "prev_msg_id"

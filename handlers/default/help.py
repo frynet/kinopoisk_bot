@@ -2,7 +2,6 @@ from telebot.types import Message
 
 from loader import bot
 from texts import BOT_WHAT_CAN_I_DO
-from utils.telegram import delete_message
 
 
 @bot.message_handler(commands=["help"])
@@ -19,4 +18,4 @@ def bot_help(msg: Message) -> None:
 
 def _prepare(msg: Message) -> None:
     bot.delete_state(msg.from_user.id, msg.chat.id)
-    delete_message(bot, msg)
+    bot.delete_message(msg.chat.id, msg.message_id)

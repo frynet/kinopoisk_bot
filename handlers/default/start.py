@@ -5,7 +5,6 @@ from keyboards.reply.global_menu import create_global_menu
 from loader import bot
 from services.users import user_service
 from texts import BOT_WHAT_CAN_I_DO, BOT_WELCOME_TEXT, BOT_PRESS_TO_CONTINUE
-from utils.telegram import delete_message
 
 
 @bot.message_handler(commands=["start"])
@@ -33,5 +32,6 @@ def welcome_text(username: str) -> str:
 
 def _prepare(msg: Message) -> None:
     bot.delete_state(msg.from_user.id, msg.chat.id)
+    bot.delete_message(msg.chat.id, msg.message_id)
+
     user_service.get_or_create_user(msg.from_user)
-    delete_message(bot, msg)

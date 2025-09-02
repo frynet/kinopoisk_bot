@@ -5,10 +5,10 @@ from telebot.types import CallbackQuery
 from keyboards.inline.movies_genres import genres_kb
 from loader import bot
 from services.movies import movie_service
-from states.core.data_keys import MOVIE_TYPE, MOVIE_GENRE, NEXT_HANDLER_AFTER_GENRE, PREV_MSG_ID
-from states.core.handlers.registry import execute_handler
 from texts import USER_REQUEST_GENRE
 from utils.callbacks import callback_match, Action, callback_parse
+from ..core.data_keys import MOVIE_TYPE, MOVIE_GENRE, NEXT_STEP_FUNC, PREV_MSG_ID
+from ..core.registry import run
 
 
 class SearchMoviesStates(StatesGroup):
@@ -78,7 +78,7 @@ def genre_select(
     with state.data() as ctx:
         ctx[MOVIE_GENRE] = genre
         ctx[PREV_MSG_ID] = call.message.message_id
-        next_handler = ctx.get(NEXT_HANDLER_AFTER_GENRE)
+        next_step = ctx.get(NEXT_STEP_FUNC)
 
-    if next_handler:
-        execute_handler(next_handler, call.message.chat.id, state)
+    if next_step:
+        run(next_step, call.message.chat.id, state)

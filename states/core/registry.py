@@ -1,23 +1,31 @@
 from __future__ import annotations
 
-from typing import Callable
+from typing import Callable, Any
 
 from telebot.states import StatesGroup
-from telebot.states.sync import StateContext
 
 from utils.logging import log
 
-__all__ = ["get_key", "register_handler", "execute_handler"]
+__all__ = ["get_func", "get_name", "register", "run"]
 
-HandlerType = Callable[..., None]
-_HANDLERS: dict[str, HandlerType] = {}
-
-
-def get_key(flow: type[StatesGroup], name: str) -> str:
-    return flow.__name__ + "_" + name
+RegisteredCallable = Callable[..., Any]
+_REGISTRY: dict[str, RegisteredCallable] = {}
 
 
-def register_handler(
+def get_name(flow: type[StatesGroup], name: str) -> str:
+    return f"{flow.__name__}_{name}"
+
+
+def get_func(key: str) -> RegisteredCallable | None:
+    func = _REGISTRY.get(key)
+
+    if not func:
+        log.error(f"Функция '{key}' не найдена в реестре.")
+
+    return func
+
+
+def register(
         flow: type[StatesGroup],
         name: str,
 ):
@@ -39,26 +47,21 @@ def register_handler(
     :param name: Уникальное имя обработчика внутри указанного сценария.
     """
 
-    def decorator(func: HandlerType) -> HandlerType:
-        _HANDLERS[get_key(flow, name)] = func
+    def decorator(func: RegisteredCallable) -> RegisteredCallable:
+        _REGISTRY[get_name(flow, name)] = func
 
         return func
 
     return decorator
 
 
-def execute_handler(
-        key: str,
-        chat_id: int,
-        state: StateContext,
-        **kwargs,
-):
-    func = _HANDLERS.get(key)
+def run(key: str, *args, **kwargs) -> Any | None:
+    func = get_func(key)
 
     if func:
         try:
-            func(chat_id, state, **kwargs)
+            return func(*args, **kwargs)
         except Exception as e:
-            log.error(f"Ошибка при выполнении обработчика '{key}': {e}")
-    else:
-        log.error(f"Обработчик для ключа '{key}' не найден в реестре.")
+            log.error(f"Ошибка при выполнении функции '{key}': {e}")
+
+    return None

@@ -6,7 +6,6 @@ from requests import Session
 
 import config
 from errors.api.kinopoisk import KinopoiskApiError
-from utils.debug import log_http_request
 from utils.errors import log_request_error
 from utils.logging import log
 from utils.models import get_required_fields

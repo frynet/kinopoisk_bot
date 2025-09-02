@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Callable
+
 from telebot.handler_backends import StatesGroup
 from telebot.states.sync import StateContext
 from telebot.types import CallbackQuery
@@ -12,72 +14,55 @@ from texts import (
     USER_REQUEST_PAGE_SIZE,
     USER_REQUEST_MOVIE_TYPE,
 )
-from utils.telegram import delete_message
+from ..core import registry
 from ..core.data_keys import (
     MOVIE_TYPE, MOVIE_GENRE,
-    NEXT_HANDLER_AFTER_GENRE,
+    NEXT_STEP_FUNC, DATA_GETTER_FUNC,
 )
-from ..core.handlers.movies import set_handlers, register_show_movies_handlers
-from ..core.handlers.registry import get_key, register_handler
-from ..core.renderers.movies import render_movies_page
+from ..core.registry import register
 from ..default.pagination import PaginationStates
-
-__all__ = ["search_low_budget_flow"]
-
 from ..default.search_movies import SearchMoviesStates
+
+__all__ = ["start_search_low_budget"]
 
 
 class SearchLowBudgetFlow(StatesGroup):
     pass
 
 
-def search_low_budget_flow(call: CallbackQuery):
+def start_search_low_budget(call: CallbackQuery):
     bot.answer_callback_query(call.id)
-    delete_message(bot, call.message)
 
     user_id = call.from_user.id
     chat_id = call.message.chat.id
+    msg_id = call.message.message_id
 
     state_data = {
-        NEXT_HANDLER_AFTER_GENRE: get_key(SearchLowBudgetFlow, "ask_pagination")
+        NEXT_STEP_FUNC: registry.get_name(SearchLowBudgetFlow, "ask_pagination"),
+        DATA_GETTER_FUNC: registry.get_name(SearchLowBudgetFlow, "search_low_budget"),
     }
 
+    bot.delete_message(chat_id, msg_id)
     bot.set_state(user_id, SearchMoviesStates.select_type, chat_id)
     bot.add_data(user_id, chat_id, **state_data)
-
-    bot.send_message(
-        chat_id,
-        USER_REQUEST_MOVIE_TYPE,
-        reply_markup=movie_type_kb(),
-    )
+    bot.send_message(chat_id, USER_REQUEST_MOVIE_TYPE, reply_markup=movie_type_kb())
 
 
-@register_handler(SearchLowBudgetFlow, "ask_pagination")
+@register(SearchLowBudgetFlow, "ask_pagination")
 def ask_pagination(chat_id: int, state: StateContext):
-    with state.data() as ctx:
-        set_handlers(SearchLowBudgetFlow, ctx)
-
     state.set(PaginationStates.set_page_size)
 
-    bot.send_message(
-        chat_id,
-        text=USER_REQUEST_PAGE_SIZE,
-        reply_markup=page_size_kb(),
-    )
+    bot.send_message(chat_id, USER_REQUEST_PAGE_SIZE, reply_markup=page_size_kb())
 
 
-def _show_movies(chat_id: int, state: StateContext):
+@register(SearchLowBudgetFlow, "search_low_budget")
+def _api_call(state: StateContext) -> Callable:
     with state.data() as ctx:
         movie_type = ctx.get(MOVIE_TYPE)
         genre = ctx.get(MOVIE_GENRE)
 
-    api_call = lambda page, page_size: movie_service.search_low_budget(
+    return lambda page, page_size: movie_service.search_low_budget(
         page, page_size,
         movie_type=movie_type,
         genre=genre,
     )
-
-    render_movies_page(chat_id, state, get_movies=api_call)
-
-
-register_show_movies_handlers(SearchLowBudgetFlow, _show_movies)

@@ -6,10 +6,10 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQu
 
 from loader import bot
 from services.movies import movie_service
-from states.custom.search_by_name import search_by_name_flow
-from states.custom.search_by_rating import search_by_rating_flow
-from states.custom.search_high_budget import search_high_budget_flow
-from states.custom.search_low_budget import search_low_budget_flow
+from states.custom.search_by_name import start_search_by_name
+from states.custom.search_by_rating import start_search_by_rating
+from states.custom.search_high_budget import start_search_high_budget
+from states.custom.search_low_budget import start_search_low_budget
 from texts import (
     BTN_SEARCH_BY_NAME,
     BTN_SEARCH_BY_RATING,
@@ -28,10 +28,10 @@ class MenuItem:
 
 
 class MainMenuButton(Enum):
-    SEARCH_BY_NAME = MenuItem(BTN_SEARCH_BY_NAME, search_by_name_flow)
-    SEARCH_BY_RATING = MenuItem(BTN_SEARCH_BY_RATING, search_by_rating_flow)
-    SEARCH_LOW_BUDGET = MenuItem(BTN_SEARCH_LOW_BUDGET, search_low_budget_flow)
-    SEARCH_HIGH_BUDGET = MenuItem(BTN_SEARCH_HIGH_BUDGET, search_high_budget_flow)
+    SEARCH_BY_NAME = MenuItem(BTN_SEARCH_BY_NAME, start_search_by_name)
+    SEARCH_BY_RATING = MenuItem(BTN_SEARCH_BY_RATING, start_search_by_rating)
+    SEARCH_LOW_BUDGET = MenuItem(BTN_SEARCH_LOW_BUDGET, start_search_low_budget)
+    SEARCH_HIGH_BUDGET = MenuItem(BTN_SEARCH_HIGH_BUDGET, start_search_high_budget)
     SEARCH_HISTORY = MenuItem(BTN_SEARCH_HISTORY, movie_service.show_history)
 
 

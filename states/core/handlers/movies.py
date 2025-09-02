@@ -7,7 +7,7 @@ from loader import bot
 from texts import BOT_SEARCH_RESULTS
 from utils.telegram import delete_message_by_id
 from .registry import get_key, register_handler
-from ..data_keys import INITIAL_HANDLER, UPDATE_HANDLER, OLD_MOVIES_IDS
+from ..data_keys import INITIAL_HANDLER, UPDATE_HANDLER, MOVIE_MESSAGES_IDS
 
 SHOW_FIRST_PAGE = "init_page"
 SHOW_OTHER_PAGE = "update_page"
@@ -32,7 +32,7 @@ def register_show_movies_handlers(
     @register_handler(flow, SHOW_OTHER_PAGE)
     def update_page(chat_id: int, state: StateContext):
         with state.data() as ctx:
-            old_ids = ctx.get(OLD_MOVIES_IDS, [])
+            old_ids = ctx.get(MOVIE_MESSAGES_IDS, [])
 
         for msg_id in old_ids:
             delete_message_by_id(bot, chat_id, msg_id)

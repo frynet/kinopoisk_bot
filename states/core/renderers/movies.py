@@ -9,7 +9,7 @@ from keyboards.inline.pagination import pagination_kb_text, pagination_kb
 from loader import bot
 from texts import BOT_SEARCH_RESULTS_NOT_FOUND
 from utils.logging import log
-from ..data_keys import CUR_PAGE, PAGE_SIZE, MAX_PAGES, OLD_MOVIES_IDS
+from ..data_keys import CUR_PAGE, PAGE_SIZE, MAX_PAGES, MOVIE_MESSAGES_IDS
 
 __all__ = ["render_movies_page"]
 
@@ -48,7 +48,7 @@ def render_movies_page(
         reply_markup=pagination_kb(),
     )
 
-    state_data[OLD_MOVIES_IDS] = new_ids + [nav_msg.message_id]
+    state_data[MOVIE_MESSAGES_IDS] = new_ids + [nav_msg.message_id]
 
     state.add_data(**state_data)
 

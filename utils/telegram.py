@@ -1,6 +1,8 @@
 from telebot import TeleBot
+from telebot.types import BotCommand
 from telebot.types import Message, ReplyKeyboardRemove
 
+from config import DEFAULT_COMMANDS
 from utils.logging import log
 
 
@@ -27,3 +29,12 @@ def delete_message_by_id(
 
 def hide_reply_keyboard() -> ReplyKeyboardRemove:
     return ReplyKeyboardRemove()
+
+
+def set_default_commands(bot):
+    bot.set_my_commands(
+        [
+            BotCommand(*cmd)
+            for cmd in DEFAULT_COMMANDS
+        ]
+    )

@@ -3,7 +3,7 @@ from telebot.states.sync.middleware import StateMiddleware
 from telebot.storage import StateMemoryStorage
 
 import config
-from utils.set_bot_commands import set_default_commands
+from utils.telegram import set_default_commands
 
 storage = StateMemoryStorage()
 bot = TeleBot(

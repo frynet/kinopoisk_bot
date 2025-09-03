@@ -16,7 +16,7 @@ from texts import (
     USER_REQUEST_MOVIE_NAME, USER_REQUEST_PAGE_SIZE,
 )
 from ..core import registry
-from ..core.data_keys import MOVIE_NAME, DATA_GETTER_FUNC
+from ..core.data_keys import MOVIE_NAME, DATA_GETTER_FUNC, UID
 from ..core.registry import register
 from ..default.pagination import PaginationStates
 
@@ -35,8 +35,13 @@ def start_search_by_name(call: CallbackQuery):
     chat_id = call.message.chat.id
     msg_id = call.message.message_id
 
+    state_data = {
+        UID: user_id,
+    }
+
     bot.delete_message(chat_id, msg_id)
     bot.set_state(user_id, SearchByNameFlow.name, chat_id)
+    bot.add_data(user_id, chat_id, **state_data)
     bot.send_message(chat_id, USER_REQUEST_MOVIE_NAME)
 
 
@@ -65,5 +70,6 @@ def get_name(msg: Message, state: StateContext):
 def _api_call(state: StateContext) -> Callable:
     with state.data() as ctx:
         name = ctx.get(MOVIE_NAME)
+        uid = ctx.get(UID)
 
-    return lambda page, page_size: movie_service.search_by_name(name, page, page_size)
+    return lambda page, page_size: movie_service.search_by_name(uid, name, page, page_size)

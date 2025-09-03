@@ -5,8 +5,13 @@ from datetime import datetime, timedelta, timezone
 from telebot.types import CallbackQuery
 
 from api.kinopoisk.dto.core import KinopoiskSlug, SortType, SortField
+from api.kinopoisk.dto.movie import MovieDto
 from api.kinopoisk.dto.response import ResponseMovieSearch
 from api.kinopoisk.kinopoisk_api import kinopoisk_api
+from database.core.session import SessionLocal
+from database.dao.users_movies_search_log import UserMovieSearchLog
+from database.repos.movies import MovieRepository
+from services.users import UserService
 
 
 class MovieService:
@@ -28,20 +33,27 @@ class MovieService:
 
         return self._genres_cache
 
+    @classmethod
     def search_by_name(
-            self,
+            cls,
+            user_id: int,
             search_name: str,
             page: int,
             page_size: int,
     ) -> ResponseMovieSearch:
-        return kinopoisk_api.search_movies_by_name(
+        response = kinopoisk_api.search_movies_by_name(
             search_name=search_name,
             page=page,
             limit=page_size,
         )
 
+        cls._log_user_movie_search(user_id, response.movies)
+
+        return response
+
+    @classmethod
     def search_by_rating(
-            self,
+            cls,
             page: int,
             page_size: int,
             rating_range: str,
@@ -58,8 +70,9 @@ class MovieService:
             sort_types=[SortType.DESC, SortType.DESC],
         )
 
+    @classmethod
     def search_low_budget(
-            self,
+            cls,
             page: int,
             page_size: int,
             movie_type: str | None = None,
@@ -81,8 +94,9 @@ class MovieService:
             not_null_fields=["budget.value"],
         )
 
+    @classmethod
     def search_high_budget(
-            self,
+            cls,
             page: int,
             page_size: int,
             movie_type: str | None = None,
@@ -106,6 +120,26 @@ class MovieService:
             return False
 
         return (self._now() - self._genres_cached_at) <= self._genres_ttl
+
+    @classmethod
+    def _log_user_movie_search(
+            cls,
+            user_tg_id: int,
+            movies: list[MovieDto],
+    ):
+        with SessionLocal() as session:
+            user = UserService.get_by_tg_id(user_tg_id)
+
+            session.add_all(
+                UserMovieSearchLog(
+                    user_id=user.id,
+                    movie_id=dao.id,
+                )
+                for dto in movies
+                if (dao := MovieRepository.upsert_movie(session, dto))
+            )
+
+            session.commit()
 
     @staticmethod
     def _now() -> datetime:

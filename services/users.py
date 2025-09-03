@@ -8,6 +8,11 @@ from database.repos.users import UserRepository
 class UserService:
 
     @classmethod
+    def get_by_tg_id(cls, tg_id) -> UserDao:
+        with SessionLocal() as session:
+            return UserRepository.get_by_telegram_id(session, tg_id)
+
+    @classmethod
     def get_or_create_user(cls, tg_user: User) -> UserDao:
         with SessionLocal() as session:
             user = UserRepository.get_by_telegram_id(session, tg_user.id)

@@ -2,6 +2,8 @@ CUR_PAGE = "page"
 PAGE_SIZE = "page_size"
 MAX_PAGES = "max_pages"
 
+UID = "uid"
+
 MOVIE_ID = "movie_id"
 MOVIE_TYPE = "movie_type"
 MOVIE_RATING = "movie_rating"

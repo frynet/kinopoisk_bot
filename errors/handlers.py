@@ -1,3 +1,4 @@
+import traceback
 from functools import wraps
 
 from telebot.types import Message, CallbackQuery
@@ -34,7 +35,7 @@ def user_friendly_errors(func):
             error_text = ERR_KINOPOISK_UNAVAILABLE
         except Exception as ex:
             error_text = ERR_COMMON
-            log.error("Unexpected error in '{}': {}", func.__name__, ex)
+            log.error("Unexpected error in '{}': {}\n{}", func.__name__, ex, traceback.format_exc())
 
         ctx = _find_context(args, func.__name__)
         if ctx:

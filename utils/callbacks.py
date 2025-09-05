@@ -25,8 +25,6 @@ ANY_FLOW = "Any"
 
 class Action(Enum):
     SET_PAGE_SIZE = auto()
-    MARK_WATCHED = auto()
-    MARK_UNWATCHED = auto()
     PREV_PAGE = auto()
     NEXT_PAGE = auto()
     SELECT_MOVIE_TYPE = auto()

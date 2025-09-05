@@ -4,7 +4,6 @@ from datetime import datetime, timedelta, timezone
 
 from api.kinopoisk.dto.core import KinopoiskSlug, SortType, SortField
 from api.kinopoisk.dto.movie import MovieDto
-from api.kinopoisk.dto.response import ResponseMovieSearch
 from api.kinopoisk.kinopoisk_api import kinopoisk_api
 from database.core.session import SessionLocal
 from database.dao.users_movies_search_log import UserMovieSearchLog
@@ -40,7 +39,7 @@ class MovieService:
             search_name: str,
             page: int,
             page_size: int,
-    ) -> ResponseMovieSearch:
+    ) -> Movies:
         response = kinopoisk_api.search_movies_by_name(
             search_name=search_name,
             page=page,
@@ -61,7 +60,7 @@ class MovieService:
             rating_range: str,
             movie_type: str | None = None,
             genre: str | None = None,
-    ) -> ResponseMovieSearch:
+    ) -> Movies:
         response = kinopoisk_api.search_movies(
             page=page,
             limit=page_size,
@@ -85,7 +84,7 @@ class MovieService:
             page_size: int,
             movie_type: str | None = None,
             genre: str | None = None,
-    ) -> ResponseMovieSearch:
+    ) -> Movies:
         response = kinopoisk_api.search_movies(
             page=page,
             limit=page_size,

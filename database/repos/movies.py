@@ -1,10 +1,17 @@
 from __future__ import annotations
 
-from sqlalchemy import select
+from datetime import datetime
+from math import ceil
+
+from sqlalchemy import select, func
 from sqlalchemy.dialects.sqlite import insert
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from api.kinopoisk.dto.movie import MovieDto
+from converters.movies import dao_to_dto
+from model.enums import HistoryPeriod
+from model.movies import Movies
+from ..dao import UserMovieSearchLog
 from ..dao.movies import MovieDao
 
 
@@ -67,3 +74,49 @@ class MovieRepository:
         ).scalar_one_or_none()
 
         return result
+
+    @classmethod
+    def get_user_search_history(
+            cls,
+            session: Session,
+            user_id: int,
+            period: HistoryPeriod,
+            page: int,
+            page_size: int,
+    ) -> Movies:
+        since = datetime.now().date() - period.get_range()
+
+        subquery = (
+            select(func.max(UserMovieSearchLog.id).label("max_id"))
+            .where(
+                UserMovieSearchLog.user_id == user_id,
+                func.date(UserMovieSearchLog.timestamp) >= since,
+            )
+            .group_by(UserMovieSearchLog.movie_id)
+            .subquery()
+        )
+
+        total_stmt = select(func.count()).select_from(subquery)
+        total = session.execute(total_stmt).scalar_one()
+
+        stmt = (
+            select(UserMovieSearchLog)
+            .join(subquery, UserMovieSearchLog.id == subquery.c.max_id)
+            .options(joinedload(UserMovieSearchLog.movie))
+            .order_by(UserMovieSearchLog.timestamp.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+
+        results = session.execute(stmt).scalars().all()
+        movies = [
+            dao_to_dto(entry.movie)
+            for entry in results
+            if entry.movie
+        ]
+
+        return Movies(
+            items=movies,
+            page=page,
+            pages=ceil(total / page_size) if page_size else 1,
+        )

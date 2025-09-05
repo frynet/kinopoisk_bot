@@ -5,11 +5,11 @@ from typing import Callable
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 
 from loader import bot
-from services.movies import movie_service
 from states.custom.search_by_name import start_search_by_name
 from states.custom.search_by_rating import start_search_by_rating
 from states.custom.search_high_budget import start_search_high_budget
 from states.custom.search_low_budget import start_search_low_budget
+from states.custom.watch_history import start_watch_history
 from texts import (
     BTN_SEARCH_BY_NAME,
     BTN_SEARCH_BY_RATING,
@@ -32,7 +32,7 @@ class MainMenuButton(Enum):
     SEARCH_BY_RATING = MenuItem(BTN_SEARCH_BY_RATING, start_search_by_rating)
     SEARCH_LOW_BUDGET = MenuItem(BTN_SEARCH_LOW_BUDGET, start_search_low_budget)
     SEARCH_HIGH_BUDGET = MenuItem(BTN_SEARCH_HIGH_BUDGET, start_search_high_budget)
-    SEARCH_HISTORY = MenuItem(BTN_SEARCH_HISTORY, movie_service.show_history)
+    SEARCH_HISTORY = MenuItem(BTN_SEARCH_HISTORY, start_watch_history)
 
 
 def create_main_menu() -> InlineKeyboardMarkup:

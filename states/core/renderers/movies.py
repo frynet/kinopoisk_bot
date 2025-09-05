@@ -7,9 +7,9 @@ from telebot.states.sync import StateContext
 from telebot.types import InputMediaPhoto, InputFile
 
 from api.kinopoisk.dto.movie import MovieDto
-from api.kinopoisk.dto.response import ResponseMovieSearch
 from assets.assets import MOVIE_PLACEHOLDER_PATH
 from loader import bot
+from model.movies import Movies
 from texts import (
     BOT_SEARCH_RESULTS,
     BOT_SEARCH_RESULTS_NOT_FOUND,
@@ -24,7 +24,7 @@ __all__ = ["render_movies_page"]
 def render_movies_page(
         chat_id: int,
         state: StateContext,
-        get_movies: Callable[[int, int], ResponseMovieSearch],
+        get_movies: Callable[[int, int], Movies],
 ):
     with state.data() as ctx:
         page = ctx.get(PAGE, 1)
@@ -36,27 +36,27 @@ def render_movies_page(
     if not old_ids:
         bot.send_message(chat_id, BOT_SEARCH_RESULTS)
 
-    resp = get_movies(page, page_size)
+    movies = get_movies(page, page_size)
 
-    if not resp.movies:
+    if not movies.items:
         bot.send_message(chat_id, BOT_SEARCH_RESULTS_NOT_FOUND)
         state.delete()
 
         return
 
     new_movie_ids = []
-    for movie, old_id in zip_longest(resp.movies, old_movie_ids):
+    for movie, old_id in zip_longest(movies.items, old_movie_ids):
         if movie is not None:
             if sent := update_movie(chat_id, movie, old_id):
                 new_movie_ids.append(sent)
         elif old_id:
             bot.delete_message(chat_id, old_id)
 
-    nav_msg_id = create_navigation(resp.page, resp.pages, chat_id, nav_msg_id)
+    nav_msg_id = create_navigation(movies.page, movies.pages, chat_id, nav_msg_id)
 
     state.add_data(
         **{
-            MAX_PAGES: resp.pages,
+            MAX_PAGES: movies.pages,
             MOVIE_PAGE_IDS: [*new_movie_ids, nav_msg_id],
         }
     )

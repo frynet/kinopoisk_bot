@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-from telebot.types import CallbackQuery
-
 from api.kinopoisk.dto.core import KinopoiskSlug, SortType, SortField
 from api.kinopoisk.dto.movie import MovieDto
 from api.kinopoisk.dto.response import ResponseMovieSearch
@@ -11,7 +9,9 @@ from api.kinopoisk.kinopoisk_api import kinopoisk_api
 from database.core.session import SessionLocal
 from database.dao.users_movies_search_log import UserMovieSearchLog
 from database.repos.movies import MovieRepository
-from services.users import UserService
+from model.enums import HistoryPeriod
+from model.movies import Movies
+from services.users import UserService, user_service
 
 
 class MovieService:
@@ -50,7 +50,7 @@ class MovieService:
         if response.movies:
             cls._log_user_movie_search(user_id, response.movies)
 
-        return response
+        return response.to_movies()
 
     @classmethod
     def search_by_rating(
@@ -75,7 +75,7 @@ class MovieService:
         if response.movies:
             cls._log_user_movie_search(user_id, response.movies)
 
-        return response
+        return response.to_movies()
 
     @classmethod
     def search_low_budget(
@@ -105,7 +105,7 @@ class MovieService:
         if response.movies:
             cls._log_user_movie_search(user_id, response.movies)
 
-        return response
+        return response.to_movies()
 
     @classmethod
     def search_high_budget(
@@ -115,7 +115,7 @@ class MovieService:
             page_size: int,
             movie_type: str | None = None,
             genre: str | None = None,
-    ) -> ResponseMovieSearch:
+    ) -> Movies:
         response = kinopoisk_api.search_movies(
             page=page,
             limit=page_size,
@@ -129,10 +129,20 @@ class MovieService:
         if response.movies:
             cls._log_user_movie_search(user_id, response.movies)
 
-        return response
+        return response.to_movies()
 
-    def show_history(self, call: CallbackQuery) -> None:
-        pass
+    @classmethod
+    def get_user_search_history(
+            cls,
+            user_id: int,
+            page: int,
+            page_size: int,
+            period: HistoryPeriod,
+    ) -> Movies:
+        with SessionLocal() as session:
+            user = user_service.get_by_tg_id(user_id)
+
+            return MovieRepository.get_user_search_history(session, user.id, period, page, page_size)
 
     def _is_genres_cache_valid(self) -> bool:
         if not self._genres_cache or not self._genres_cached_at:

@@ -18,7 +18,7 @@ from texts import (
 from ..core import registry
 from ..core.data_keys import (
     MOVIE_TYPE, MOVIE_GENRE,
-    NEXT_STEP_FUNC, DATA_GETTER_FUNC,
+    NEXT_STEP_FUNC, DATA_GETTER_FUNC, UID,
 )
 from ..core.registry import register
 from ..default.pagination import PaginationStates
@@ -40,6 +40,7 @@ def start_search_high_budget(call: CallbackQuery):
     msg_id = call.message.message_id
 
     state_data = {
+        UID: user_id,
         NEXT_STEP_FUNC: registry.get_name(SearchHighBudgetFlow, "ask_pagination"),
         DATA_GETTER_FUNC: registry.get_name(SearchHighBudgetFlow, "search_high_budget"),
     }
@@ -60,11 +61,13 @@ def ask_pagination(chat_id: int, state: StateContext):
 @register(SearchHighBudgetFlow, "search_high_budget")
 def _api_call(state: StateContext) -> Callable:
     with state.data() as ctx:
+        uid = ctx.get(UID)
         movie_type = ctx.get(MOVIE_TYPE)
         genre = ctx.get(MOVIE_GENRE)
 
     return lambda page, page_size: movie_service.search_high_budget(
-        page, page_size,
+        user_id=uid,
+        page=page, page_size=page_size,
         movie_type=movie_type,
         genre=genre,
     )

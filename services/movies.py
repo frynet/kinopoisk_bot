@@ -47,20 +47,22 @@ class MovieService:
             limit=page_size,
         )
 
-        cls._log_user_movie_search(user_id, response.movies)
+        if response.movies:
+            cls._log_user_movie_search(user_id, response.movies)
 
         return response
 
     @classmethod
     def search_by_rating(
             cls,
+            user_id: int,
             page: int,
             page_size: int,
             rating_range: str,
             movie_type: str | None = None,
             genre: str | None = None,
     ) -> ResponseMovieSearch:
-        return kinopoisk_api.search_movies(
+        response = kinopoisk_api.search_movies(
             page=page,
             limit=page_size,
             movie_types=[movie_type] if movie_type else None,
@@ -70,15 +72,21 @@ class MovieService:
             sort_types=[SortType.DESC, SortType.DESC],
         )
 
+        if response.movies:
+            cls._log_user_movie_search(user_id, response.movies)
+
+        return response
+
     @classmethod
     def search_low_budget(
             cls,
+            user_id: int,
             page: int,
             page_size: int,
             movie_type: str | None = None,
             genre: str | None = None,
     ) -> ResponseMovieSearch:
-        return kinopoisk_api.search_movies(
+        response = kinopoisk_api.search_movies(
             page=page,
             limit=page_size,
             movie_types=[movie_type] if movie_type else None,
@@ -94,15 +102,21 @@ class MovieService:
             not_null_fields=["budget.value"],
         )
 
+        if response.movies:
+            cls._log_user_movie_search(user_id, response.movies)
+
+        return response
+
     @classmethod
     def search_high_budget(
             cls,
+            user_id: int,
             page: int,
             page_size: int,
             movie_type: str | None = None,
             genre: str | None = None,
     ) -> ResponseMovieSearch:
-        return kinopoisk_api.search_movies(
+        response = kinopoisk_api.search_movies(
             page=page,
             limit=page_size,
             movie_types=[movie_type] if movie_type else None,
@@ -111,6 +125,11 @@ class MovieService:
             sort_types=[SortType.ASC, SortType.DESC],
             not_null_fields=["budget.value", "budget.currency"],
         )
+
+        if response.movies:
+            cls._log_user_movie_search(user_id, response.movies)
+
+        return response
 
     def show_history(self, call: CallbackQuery) -> None:
         pass

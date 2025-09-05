@@ -21,7 +21,7 @@ from utils.callbacks import callback_match, Action, callback_parse
 from ..core import registry
 from ..core.data_keys import (
     MOVIE_TYPE, MOVIE_RATING, MOVIE_GENRE,
-    NEXT_STEP_FUNC, PREV_MSG_ID, DATA_GETTER_FUNC,
+    NEXT_STEP_FUNC, PREV_MSG_ID, DATA_GETTER_FUNC, UID,
 )
 from ..core.registry import register
 from ..default.pagination import PaginationStates
@@ -43,6 +43,7 @@ def start_search_by_rating(call: CallbackQuery):
     msg_id = call.message.message_id
 
     state_data = {
+        UID: user_id,
         NEXT_STEP_FUNC: registry.get_name(SearchByRatingFlow, "ask_for_rating"),
         DATA_GETTER_FUNC: registry.get_name(SearchByRatingFlow, "search_by_rating"),
     }
@@ -89,11 +90,13 @@ def select_rating(call: CallbackQuery, state: StateContext):
 @register(SearchByRatingFlow, "search_by_rating")
 def _api_call(state: StateContext) -> Callable:
     with state.data() as ctx:
+        uid = ctx.get(UID)
         movie_type = ctx.get(MOVIE_TYPE)
         genre = ctx.get(MOVIE_GENRE)
         rating_range = ctx.get(MOVIE_RATING)
 
     return lambda page, page_size: movie_service.search_by_rating(
+        user_id=uid,
         movie_type=movie_type,
         genre=genre,
         rating_range=rating_range,

@@ -8,9 +8,9 @@ from texts import (
     BOT_PAGINATE_ALREADY_FIRST_PAGE_SELECT,
     BOT_PAGINATE_ALREADY_LAST_PAGE_SELECT,
 )
-from utils.callbacks import callback_match, Action, callback_parse
+from ..core.callbacks import PAGINATION_SET_SIZE, PAGINATION_NAV_PAGE
 from ..core.data_keys import (
-    CUR_PAGE, MAX_PAGES, PAGE_SIZE,
+    PAGE, PAGE_SIZE, MAX_PAGES,
     DATA_GETTER_FUNC,
 )
 from ..core.registry import get_func
@@ -22,9 +22,7 @@ class PaginationStates(StatesGroup):
     page_navigation = State()
 
 
-@bot.callback_query_handler(
-    func=callback_match(None, [Action.SET_PAGE_SIZE])
-)
+@bot.callback_query_handler(cb_filter=PAGINATION_SET_SIZE.filter())
 def select_page_size(
         call: CallbackQuery,
         state: StateContext,
@@ -33,8 +31,8 @@ def select_page_size(
 
     chat_id = call.message.chat.id
     msg_id = call.message.message_id
-    data = callback_parse(call.data)
-    page_size = data.payload.get("page_size")
+    data = PAGINATION_SET_SIZE.parse(call.data)
+    page_size = data.get(PAGE_SIZE)
 
     if not page_size or not page_size.isdigit():
         bot.answer_callback_query(call.id, ERR_INVALID_PAGE_SIZE, show_alert=True)
@@ -42,7 +40,7 @@ def select_page_size(
         return
 
     with state.data() as ctx:
-        ctx[CUR_PAGE] = 1
+        ctx[PAGE] = 1
         ctx[PAGE_SIZE] = int(page_size)
 
     state.set(PaginationStates.page_navigation)
@@ -51,15 +49,13 @@ def select_page_size(
     _render(chat_id, state)
 
 
-@bot.callback_query_handler(
-    func=callback_match(None, [Action.PREV_PAGE])
-)
+@bot.callback_query_handler(cb_filter=PAGINATION_NAV_PAGE.filter(action="prev"))
 def nav_prev_page(
         call: CallbackQuery,
         state: StateContext,
 ):
     with state.data() as ctx:
-        page = ctx.get(CUR_PAGE)
+        page = ctx.get(PAGE)
 
         if page <= 1:
             bot.answer_callback_query(
@@ -70,21 +66,19 @@ def nav_prev_page(
 
             return
 
-        ctx[CUR_PAGE] = page - 1
+        ctx[PAGE] = page - 1
 
     bot.answer_callback_query(call.id)
     _render(call.message.chat.id, state)
 
 
-@bot.callback_query_handler(
-    func=callback_match(None, [Action.NEXT_PAGE])
-)
+@bot.callback_query_handler(cb_filter=PAGINATION_NAV_PAGE.filter(action="next"))
 def nav_next_page(
         call: CallbackQuery,
         state: StateContext,
 ):
     with state.data() as ctx:
-        page = ctx.get(CUR_PAGE)
+        page = ctx.get(PAGE)
         max_pages = ctx.get(MAX_PAGES)
 
         if max_pages is not None and page >= max_pages:
@@ -96,7 +90,7 @@ def nav_next_page(
 
             return
 
-        ctx[CUR_PAGE] = page + 1
+        ctx[PAGE] = page + 1
 
     bot.answer_callback_query(call.id)
     _render(call.message.chat.id, state)

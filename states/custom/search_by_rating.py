@@ -17,8 +17,8 @@ from texts import (
     USER_REQUEST_MOVIE_TYPE,
     USER_REQUEST_RATING_RANGE,
 )
-from utils.callbacks import callback_match, Action, callback_parse
 from ..core import registry
+from ..core.callbacks import RATING_FLOW_SET_RATE
 from ..core.data_keys import (
     MOVIE_TYPE, MOVIE_RATING, MOVIE_GENRE,
     NEXT_STEP_FUNC, PREV_MSG_ID, DATA_GETTER_FUNC, UID,
@@ -64,21 +64,19 @@ def ask_for_rating(chat_id: int, state: StateContext):
         chat_id=chat_id,
         message_id=prev_msg_id,
         text=USER_REQUEST_RATING_RANGE,
-        reply_markup=movie_rating_kb(SearchByRatingFlow),
+        reply_markup=movie_rating_kb(),
     )
 
 
-@bot.callback_query_handler(
-    func=callback_match(SearchByRatingFlow, [Action.SELECT_RATING_RANGE])
-)
+@bot.callback_query_handler(cb_filter=RATING_FLOW_SET_RATE.filter())
 @user_friendly_errors
 def select_rating(call: CallbackQuery, state: StateContext):
     bot.answer_callback_query(call.id)
 
     chat_id = call.message.chat.id
     msg_id = call.message.message_id
-    data = callback_parse(call.data)
-    rating = data.payload.get(MOVIE_RATING)
+    data = RATING_FLOW_SET_RATE.parse(call.data)
+    rating = data.get(MOVIE_RATING)
 
     with state.data() as ctx:
         ctx[MOVIE_RATING] = rating

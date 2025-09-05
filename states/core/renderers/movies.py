@@ -15,7 +15,7 @@ from texts import (
     BOT_SEARCH_RESULTS_NOT_FOUND,
 )
 from utils.logging import log
-from ..data_keys import CUR_PAGE, PAGE_SIZE, MAX_PAGES, MOVIE_PAGE_IDS
+from ..data_keys import PAGE, PAGE_SIZE, MAX_PAGES, MOVIE_PAGE_IDS
 from ...default.navigation import create_navigation
 
 __all__ = ["render_movies_page"]
@@ -27,7 +27,7 @@ def render_movies_page(
         get_movies: Callable[[int, int], ResponseMovieSearch],
 ):
     with state.data() as ctx:
-        page = ctx.get(CUR_PAGE, 1)
+        page = ctx.get(PAGE, 1)
         page_size = ctx.get(PAGE_SIZE)
 
         old_ids = ctx.get(MOVIE_PAGE_IDS)

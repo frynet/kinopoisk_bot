@@ -1,4 +1,5 @@
-CUR_PAGE = "page"
+CB_ACTION = "action"
+PAGE = "page"
 PAGE_SIZE = "page_size"
 MAX_PAGES = "max_pages"
 

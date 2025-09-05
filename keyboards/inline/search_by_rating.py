@@ -1,8 +1,7 @@
-from telebot.states import StatesGroup
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton as Btn
 
+from states.core.callbacks import RATING_FLOW_SET_RATE
 from states.core.data_keys import MOVIE_RATING
-from utils.callbacks import callback_gen, Action
 
 RATING_OPTIONS = {
     "🏆 Шедевры": "9-10",
@@ -13,17 +12,13 @@ RATING_OPTIONS = {
 }
 
 
-def movie_rating_kb(flow: type[StatesGroup]) -> InlineKeyboardMarkup:
+def movie_rating_kb() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup(row_width=2)
 
     buttons = [
-        InlineKeyboardButton(
+        Btn(
             text=label,
-            callback_data=callback_gen(
-                flow,
-                Action.SELECT_RATING_RANGE,
-                {MOVIE_RATING: value},
-            ),
+            callback_data=RATING_FLOW_SET_RATE.new(**{MOVIE_RATING: value}),
         )
         for label, value in RATING_OPTIONS.items()
     ]

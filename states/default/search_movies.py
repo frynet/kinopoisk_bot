@@ -6,8 +6,8 @@ from keyboards.inline.movies_genres import genres_kb
 from loader import bot
 from services.movies import movie_service
 from texts import USER_REQUEST_GENRE
-from utils.callbacks import callback_match, Action, callback_parse
-from ..core.data_keys import MOVIE_TYPE, MOVIE_GENRE, NEXT_STEP_FUNC, PREV_MSG_ID
+from ..core.callbacks import MOVIE_SET_TYPE, MOVIE_NAV_GENRE, MOVIE_SET_GENRE
+from ..core.data_keys import MOVIE_TYPE, MOVIE_GENRE, NEXT_STEP_FUNC, PREV_MSG_ID, PAGE
 from ..core.registry import run
 
 
@@ -16,14 +16,12 @@ class SearchMoviesStates(StatesGroup):
     select_genre = State()
 
 
-@bot.callback_query_handler(
-    func=callback_match(None, [Action.SELECT_MOVIE_TYPE])
-)
+@bot.callback_query_handler(cb_filter=MOVIE_SET_TYPE.filter())
 def select_movie_type(call: CallbackQuery, state: StateContext):
     bot.answer_callback_query(call.id)
 
-    data = callback_parse(call.data)
-    movie_type = data.payload.get(MOVIE_TYPE)
+    data = MOVIE_SET_TYPE.parse(call.data)
+    movie_type = data.get(MOVIE_TYPE)
 
     if not movie_type:
         return
@@ -41,14 +39,12 @@ def select_movie_type(call: CallbackQuery, state: StateContext):
     )
 
 
-@bot.callback_query_handler(
-    func=callback_match(None, [Action.NAVIGATE_GENRES])
-)
+@bot.callback_query_handler(cb_filter=MOVIE_NAV_GENRE.filter(action="genre_nav"))
 def genre_navigate(call: CallbackQuery):
     bot.answer_callback_query(call.id)
 
-    data = callback_parse(call.data)
-    page = int(data.payload.get("page", 0))
+    data = MOVIE_NAV_GENRE.parse(call.data)
+    page = int(data.get(PAGE, 0))
 
     bot.edit_message_reply_markup(
         chat_id=call.message.chat.id,
@@ -60,17 +56,15 @@ def genre_navigate(call: CallbackQuery):
     )
 
 
-@bot.callback_query_handler(
-    func=callback_match(None, [Action.SELECT_GENRE])
-)
+@bot.callback_query_handler(cb_filter=MOVIE_SET_GENRE.filter())
 def genre_select(
         call: CallbackQuery,
         state: StateContext,
 ):
     bot.answer_callback_query(call.id)
 
-    data = callback_parse(call.data)
-    genre = data.payload.get(MOVIE_GENRE)
+    data = MOVIE_SET_GENRE.parse(call.data)
+    genre = data.get(MOVIE_GENRE)
 
     if not genre:
         return

@@ -19,7 +19,10 @@ from ..core.data_keys import UID, DATA_GETTER_FUNC, HISTORY_PERIOD
 from ..core.registry import register
 from ..default.pagination import PaginationStates
 
-__all__ = ["start_watch_history"]
+__all__ = [
+    "watch_history",
+    "watch_history_from_menu",
+]
 
 
 class WatchHistoryFlow(StatesGroup):
@@ -27,13 +30,21 @@ class WatchHistoryFlow(StatesGroup):
 
 
 @user_friendly_errors
-def start_watch_history(call: CallbackQuery):
+def watch_history_from_menu(call: CallbackQuery):
     bot.answer_callback_query(call.id)
 
-    user_id = call.from_user.id
-    chat_id = call.message.chat.id
-    msg_id = call.message.message_id
+    watch_history(
+        user_id=call.from_user.id,
+        chat_id=call.message.chat.id,
+        msg_id=call.message.message_id,
+    )
 
+
+def watch_history(
+        user_id: int,
+        chat_id: int,
+        msg_id: int,
+):
     state_data = {
         UID: user_id,
     }

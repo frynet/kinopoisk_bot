@@ -20,7 +20,10 @@ from ..core.data_keys import MOVIE_NAME, DATA_GETTER_FUNC, UID
 from ..core.registry import register
 from ..default.pagination import PaginationStates
 
-__all__ = ["start_search_by_name"]
+__all__ = [
+    "search_by_name",
+    "search_by_name_from_menu",
+]
 
 
 class SearchByNameFlow(StatesGroup):
@@ -28,13 +31,21 @@ class SearchByNameFlow(StatesGroup):
 
 
 @user_friendly_errors
-def start_search_by_name(call: CallbackQuery):
+def search_by_name_from_menu(call: CallbackQuery):
     bot.answer_callback_query(call.id)
 
-    user_id = call.from_user.id
-    chat_id = call.message.chat.id
-    msg_id = call.message.message_id
+    search_by_name(
+        user_id=call.from_user.id,
+        chat_id=call.message.chat.id,
+        msg_id=call.message.message_id,
+    )
 
+
+def search_by_name(
+        user_id: int,
+        chat_id: int,
+        msg_id: int,
+):
     state_data = {
         UID: user_id,
     }

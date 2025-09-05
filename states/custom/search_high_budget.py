@@ -17,14 +17,18 @@ from texts import (
 )
 from ..core import registry
 from ..core.data_keys import (
+    UID,
     MOVIE_TYPE, MOVIE_GENRE,
-    NEXT_STEP_FUNC, DATA_GETTER_FUNC, UID,
+    NEXT_STEP_FUNC, DATA_GETTER_FUNC,
 )
 from ..core.registry import register
 from ..default.pagination import PaginationStates
 from ..default.search_movies import SearchMoviesStates
 
-__all__ = ["start_search_high_budget"]
+__all__ = [
+    "search_high_budget",
+    "search_high_budget_from_menu",
+]
 
 
 class SearchHighBudgetFlow(StatesGroup):
@@ -32,13 +36,21 @@ class SearchHighBudgetFlow(StatesGroup):
 
 
 @user_friendly_errors
-def start_search_high_budget(call: CallbackQuery):
+def search_high_budget_from_menu(call: CallbackQuery):
     bot.answer_callback_query(call.id)
 
-    user_id = call.from_user.id
-    chat_id = call.message.chat.id
-    msg_id = call.message.message_id
+    search_high_budget(
+        user_id=call.from_user.id,
+        chat_id=call.message.chat.id,
+        msg_id=call.message.message_id,
+    )
 
+
+def search_high_budget(
+        user_id: int,
+        chat_id: int,
+        msg_id: int,
+):
     state_data = {
         UID: user_id,
         NEXT_STEP_FUNC: registry.get_name(SearchHighBudgetFlow, "ask_pagination"),

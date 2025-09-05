@@ -20,14 +20,18 @@ from texts import (
 from ..core import registry
 from ..core.callbacks import RATING_FLOW_SET_RATE
 from ..core.data_keys import (
+    UID,
     MOVIE_TYPE, MOVIE_RATING, MOVIE_GENRE,
-    NEXT_STEP_FUNC, PREV_MSG_ID, DATA_GETTER_FUNC, UID,
+    PREV_MSG_ID, NEXT_STEP_FUNC, DATA_GETTER_FUNC,
 )
 from ..core.registry import register
 from ..default.pagination import PaginationStates
 from ..default.search_movies import SearchMoviesStates
 
-__all__ = ["start_search_by_rating"]
+__all__ = [
+    "search_by_rating",
+    "search_by_rating_from_menu",
+]
 
 
 class SearchByRatingFlow(StatesGroup):
@@ -35,13 +39,21 @@ class SearchByRatingFlow(StatesGroup):
 
 
 @user_friendly_errors
-def start_search_by_rating(call: CallbackQuery):
+def search_by_rating_from_menu(call: CallbackQuery):
     bot.answer_callback_query(call.id)
 
-    user_id = call.from_user.id
-    chat_id = call.message.chat.id
-    msg_id = call.message.message_id
+    search_by_rating(
+        user_id=call.from_user.id,
+        chat_id=call.message.chat.id,
+        msg_id=call.message.message_id,
+    )
 
+
+def search_by_rating(
+        user_id: int,
+        chat_id: int,
+        msg_id: int,
+):
     state_data = {
         UID: user_id,
         NEXT_STEP_FUNC: registry.get_name(SearchByRatingFlow, "ask_for_rating"),

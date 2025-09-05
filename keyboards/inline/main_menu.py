@@ -5,11 +5,11 @@ from typing import Callable
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 
 from loader import bot
-from states.custom.search_by_name import start_search_by_name
-from states.custom.search_by_rating import start_search_by_rating
-from states.custom.search_high_budget import start_search_high_budget
-from states.custom.search_low_budget import start_search_low_budget
-from states.custom.watch_history import start_watch_history
+from states.custom.search_by_name import search_by_name_from_menu
+from states.custom.search_by_rating import search_by_rating_from_menu
+from states.custom.search_high_budget import search_high_budget_from_menu
+from states.custom.search_low_budget import search_low_budget_from_menu
+from states.custom.watch_history import watch_history_from_menu
 from texts import (
     BTN_SEARCH_BY_NAME,
     BTN_SEARCH_BY_RATING,
@@ -28,11 +28,11 @@ class MenuItem:
 
 
 class MainMenuButton(Enum):
-    SEARCH_BY_NAME = MenuItem(BTN_SEARCH_BY_NAME, start_search_by_name)
-    SEARCH_BY_RATING = MenuItem(BTN_SEARCH_BY_RATING, start_search_by_rating)
-    SEARCH_LOW_BUDGET = MenuItem(BTN_SEARCH_LOW_BUDGET, start_search_low_budget)
-    SEARCH_HIGH_BUDGET = MenuItem(BTN_SEARCH_HIGH_BUDGET, start_search_high_budget)
-    SEARCH_HISTORY = MenuItem(BTN_SEARCH_HISTORY, start_watch_history)
+    SEARCH_BY_NAME = MenuItem(BTN_SEARCH_BY_NAME, search_by_name_from_menu)
+    SEARCH_BY_RATING = MenuItem(BTN_SEARCH_BY_RATING, search_by_rating_from_menu)
+    SEARCH_LOW_BUDGET = MenuItem(BTN_SEARCH_LOW_BUDGET, search_low_budget_from_menu)
+    SEARCH_HIGH_BUDGET = MenuItem(BTN_SEARCH_HIGH_BUDGET, search_high_budget_from_menu)
+    SEARCH_HISTORY = MenuItem(BTN_SEARCH_HISTORY, watch_history_from_menu)
 
 
 def create_main_menu() -> InlineKeyboardMarkup:
